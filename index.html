@@ -1392,7 +1392,7 @@
         }
 
         // ============================================================================
-        // 5. OPTIMIZED 2D POLYGON ENGINE (RINGAN & LICIN UNTUK 3D PRINTING)
+        // 5. HIGH-DEFINITION 2D POLYGON ENGINE (TARGET SAIZ FAIL ~1MB - 1.8MB)
         // ============================================================================
         const CLIPPER_SCALE = 10000;
 
@@ -1438,7 +1438,7 @@
                 const py = -y;
                 if (currentPoly.length > 0) {
                     const prev = currentPoly[currentPoly.length - 1];
-                    if (Math.hypot(px - prev.x, py - prev.y) < 0.01) return;
+                    if (Math.hypot(px - prev.x, py - prev.y) < 0.004) return;
                 }
                 currentPoly.push({ x: px, y: py });
             };
@@ -1453,8 +1453,8 @@
                     curX = cmd.x; curY = cmd.y;
                     addPoint(curX, curY);
                 } else if (cmd.type === 'Q') {
-                    // Dioptimumkan dari 28 ke 12 segmen (licin untuk nozel 0.4mm & jimat saiz fail)
-                    const steps = 12;
+                    // Resolusi tinggi 24 segmen untuk lengkungan huruf yang ultra-halus
+                    const steps = 24;
                     for (let i = 1; i <= steps; i++) {
                         const t = i / steps;
                         const mt = 1 - t;
@@ -1464,8 +1464,8 @@
                     }
                     curX = cmd.x; curY = cmd.y;
                 } else if (cmd.type === 'C') {
-                    // Dioptimumkan dari 36 ke 16 segmen
-                    const steps = 16;
+                    // Resolusi tinggi 32 segmen
+                    const steps = 32;
                     for (let i = 1; i <= steps; i++) {
                         const t = i / steps;
                         const mt = 1 - t;
@@ -1505,15 +1505,15 @@
             const cleaned = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, cleaned, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
 
-            return ClipperLib.Clipper.CleanPolygons(cleaned, 0.015 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(cleaned, 0.004 * CLIPPER_SCALE);
         }
 
         function offsetClipperPaths(paths, offsetMm) {
             if (!paths || paths.length === 0) return [];
             if (Math.abs(offsetMm) < 0.001) return paths;
 
-            // ArcTolerance 0.025mm menghasilkan lengkungan luar bulat tanpa bucu berlebihan
-            const co = new ClipperLib.ClipperOffset(2.0, 0.025 * CLIPPER_SCALE);
+            // ArcTolerance halus 0.006mm untuk sempadan luar bulat sempurna
+            const co = new ClipperLib.ClipperOffset(2.0, 0.006 * CLIPPER_SCALE);
             co.AddPaths(paths, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
             const solution = new ClipperLib.Paths();
             co.Execute(solution, offsetMm * CLIPPER_SCALE);
@@ -1524,7 +1524,7 @@
             const unified = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, unified, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
 
-            return ClipperLib.Clipper.CleanPolygons(unified, 0.015 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(unified, 0.004 * CLIPPER_SCALE);
         }
 
         function unionClipperPaths(pathsA, pathsB) {
@@ -1534,7 +1534,7 @@
             if (pathsB && pathsB.length > 0) cpr.AddPaths(pathsB, ClipperLib.PolyType.ptClip, true);
             const solution = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, solution, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
-            return ClipperLib.Clipper.CleanPolygons(solution, 0.015 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(solution, 0.004 * CLIPPER_SCALE);
         }
 
         function diffClipperPaths(subjectPaths, clipPaths) {
@@ -1627,7 +1627,7 @@
             return unionClipperPaths(basePaths, bridges);
         }
 
-        function createCircleClipperPath(cx, cy, diameter, segments = 44) {
+        function createCircleClipperPath(cx, cy, diameter, segments = 84) {
             const r = diameter / 2;
             const path = [];
             for (let i = 0; i < segments; i++) {
@@ -1671,12 +1671,12 @@
             const auto_x_pos = params.Overall_Shift_X - (params.Ring_diameter_outer / 2) - params.Base_offset + params.Ring_Offset;
             const cy = params.Key_ring_fine_y;
 
-            const cMain = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_outer, 44);
-            const cTop = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy + params.Ring_Width_Base / 2, 1.0, 20);
-            const cBot = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy - params.Ring_Width_Base / 2, 1.0, 20);
+            const cMain = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_outer, 84);
+            const cTop = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy + params.Ring_Width_Base / 2, 1.0, 28);
+            const cBot = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy - params.Ring_Width_Base / 2, 1.0, 28);
 
             const hullPath = convexHullClipperPath([...cMain, ...cTop, ...cBot]);
-            const innerHole = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_inner, 44);
+            const innerHole = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_inner, 84);
 
             return diffClipperPaths([hullPath], [innerHole]);
         }
@@ -1684,8 +1684,8 @@
         function clipperPathsToThreeShapes(paths) {
             if (!paths || paths.length === 0) return [];
 
-            const minAreaScaled = 0.015 * CLIPPER_SCALE * CLIPPER_SCALE;
-            const validPaths = ClipperLib.Clipper.CleanPolygons(paths, 0.015 * CLIPPER_SCALE)
+            const minAreaScaled = 0.004 * CLIPPER_SCALE * CLIPPER_SCALE;
+            const validPaths = ClipperLib.Clipper.CleanPolygons(paths, 0.004 * CLIPPER_SCALE)
                 .filter(p => p.length >= 3 && Math.abs(ClipperLib.Clipper.Area(p)) >= minAreaScaled);
 
             if (validPaths.length === 0) return [];
@@ -1746,7 +1746,7 @@
             const extrudeSettings = {
                 depth: heightMm,
                 bevelEnabled: false,
-                curveSegments: 12
+                curveSegments: 24
             };
             const rawGeometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
             const geometry = weldGeometryVertices(rawGeometry);
@@ -1918,7 +1918,7 @@
         }
 
         // ============================================================================
-        // 7. COMPACT STL & 3MF EXPORT FUNCTIONS (DEFLATE COMPRESSION ENABLED)
+        // 7. HIGH-DETAIL STL & 3MF EXPORT FUNCTIONS (SAIZ IDEAL ~1MB - 1.8MB)
         // ============================================================================
         function triggerDownload(blob, filename) {
             const url = URL.createObjectURL(blob);
@@ -1950,7 +1950,6 @@
                 let idx = vertexMap.get(key);
                 if (idx === undefined) {
                     idx = vertices.length;
-                    // Ketepatan 3 tempat perpuluhan (0.001mm) menjimatkan saiz fail tanpa menjejaskan cetakan
                     vertices.push(`${Number(x.toFixed(3))} ${Number(y.toFixed(3))} ${Number(z.toFixed(3))}`);
                     vertexMap.set(key, idx);
                 }
@@ -2002,7 +2001,7 @@
                 return;
             }
 
-            setStatus('Memampatkan fail ringan (.3MF)...', true);
+            setStatus('Menjana fail .3MF resolusi tinggi...', true);
 
             const prevVis = [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible];
             layerGroups.base.visible = true;
@@ -2084,19 +2083,21 @@ ${objectsXml}</resources>
             zip.file("_rels/.rels", relsXml);
             zip.file("3D/3dmodel.model", modelXml);
 
-            // Aktifkan mampatan DEFLATE supaya saiz fail .3MF turun ~80%
+            // Tahap mampatan level 3: pantas dan menghasilkan saiz fail ideal sekitar 1MB - 1.8MB
             const blob = await zip.generateAsync({
                 type: "blob",
                 mimeType: "application/vnd.ms-package.3dmanufacturing-3dmodel+xml",
                 compression: "DEFLATE",
-                compressionOptions: { level: 9 }
+                compressionOptions: { level: 3 }
             });
             const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
             triggerDownload(blob, `${tagSample}_${params.Layer_Mode}Layers.3mf`);
 
             setStatus(getReadyStatusLabel(), false);
-            const sizeKb = Math.round(blob.size / 1024);
-            showToast(`Fail .3MF siap dimuat turun (${sizeKb} KB)!`);
+            const sizeLabel = blob.size >= 1048576
+                ? `${(blob.size / 1048576).toFixed(2)} MB`
+                : `${Math.round(blob.size / 1024)} KB`;
+            showToast(`Fail .3MF siap dimuat turun (${sizeLabel})!`);
         }
 
         async function exportThreeLayerZip() {
@@ -2132,7 +2133,7 @@ ${objectsXml}</resources>
             const content = await zip.generateAsync({
                 type: "blob",
                 compression: "DEFLATE",
-                compressionOptions: { level: 6 }
+                compressionOptions: { level: 3 }
             });
             const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
             triggerDownload(content, `${tagSample}_${params.Layer_Mode}Layers_BambuStudio.zip`);
