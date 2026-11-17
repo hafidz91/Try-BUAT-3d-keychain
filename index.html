@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="ms" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ffffff">
+    <title>Keychain Parametric Studio — Bentara Setia</title>
+
+    <!-- Offline-Friendly Self-Contained SVG App Icon & Manifest Setup -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2300AE42'/%3E%3Cpath d='M32 14L48 23V41L32 50L16 41V23L32 14Z' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M16 23L32 32L48 23M32 32V50' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%2300AE42'/%3E%3Cpath d='M90 38L136 64V116L90 142L44 116V64L90 38Z' fill='none' stroke='white' stroke-width='10' stroke-linejoin='round'/%3E%3Cpath d='M44 64L90 90L136 64M90 90V142' fill='none' stroke='white' stroke-width='10' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Three.js & OrbitControls & STLExporter -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
+    
+    <!-- OpenType.js for Vector Glyph Extraction -->
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+    
+    <!-- ClipperLib for Exact 2D Polygon Offsetting -->
+    <script src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"></script>
+    
+    <!-- JSZip for Multi-Color Layer STL Bundling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+                        },
+                        colors: {
+                            bambu: {
+                                400: '#22C55E',
+                                500: '#00AE42',
+                                600: '#009639',
+                                700: '#007A2E',
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.45); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.7); }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] > summary .chevron-icon { transform: rotate(180deg); }
+
+        button, input, select, summary { touch-action: manipulation; }
+        #canvasContainer { touch-action: none; }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .shake-error { animation: shakeError 0.35s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-200 dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 font-sans h-[100dvh] w-screen overflow-hidden flex flex-col select-none antialiased">
+
+    <!-- LOCK SCREEN (PASSWORD: 1234) -->
+    <div id="lockScreen" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4">
+        <div id="lockCard" class="w-full max-w-sm rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl p-6 space-y-5">
+            <div class="flex flex-col items-center text-center space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-bambu-500 flex items-center justify-center text-white shadow-lg shadow-bambu-500/25">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                </div>
+                <div>
+                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-bambu-500/12 text-bambu-600 dark:text-bambu-400 border border-bambu-500/25 mb-1">
+                        Officially Made by Bentara Setia
+                    </span>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Keychain 3D Studio</h2>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Sila masukkan kata laluan untuk mengakses studio</p>
+                </div>
+            </div>
+
+            <form id="unlockForm" class="space-y-3.5">
+                <div>
+                    <label for="passwordInput" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Kata Laluan Akses</label>
+                    <div class="relative">
+                        <input type="password" id="passwordInput" inputmode="numeric" autocomplete="off" placeholder="Masukkan kata laluan..." class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 font-mono text-sm font-semibold tracking-widest text-center focus:outline-none focus:border-bambu-500 transition">
+                        <button type="button" id="togglePwdVisBtn" title="Tunjuk / Sembunyi Kata Laluan" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 p-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </button>
+                    </div>
+                    <p id="lockErrorMsg" class="hidden text-[11px] font-semibold text-rose-500 text-center mt-1.5">Kata laluan salah! Sila cuba lagi.</p>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-bambu-500 hover:bg-bambu-600 active:bg-bambu-700 text-white text-xs font-bold shadow-md shadow-bambu-500/20 transition flex items-center justify-center gap-2">
+                    <span>Buka Studio</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOP HEADER BAR -->
+    <header class="h-14 bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 px-3 sm:px-5 flex items-center justify-between shrink-0 z-20 shadow-2xs">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-bambu-500 flex items-center justify-center text-white font-bold shadow-sm shrink-0">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                </svg>
+            </div>
+            <div class="truncate">
+                <div class="flex items-center gap-2">
+                    <h1 class="text-sm sm:text-[15px] font-bold tracking-tight text-slate-900 dark:text-white truncate">Keychain 3D Studio</h1>
+                    <span class="hidden lg:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-bambu-500/12 text-bambu-600 dark:text-bambu-400 border border-bambu-500/25">
+                        Officially Made by Bentara Setia
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-zinc-400 truncate hidden sm:block">10 Tag Nama • Sedia Online & Offline</p>
+            </div>
+        </div>
+
+        <!-- Center Pill: 2 Layer / 3 Layer Toggle -->
+        <div class="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-full border border-slate-200/90 dark:border-zinc-700 shadow-2xs">
+            <button type="button" id="mode2LayerBtn" class="px-3 sm:px-3.5 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-50"></span>
+                <span>2 Layer</span>
+            </button>
+            <button type="button" id="mode3LayerBtn" class="px-3 sm:px-3.5 py-1 rounded-full text-xs font-bold bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200/70 dark:border-zinc-700 transition flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-bambu-500"></span>
+                <span>3 Layer</span>
+            </button>
+        </div>
+
+        <!-- Right Controls -->
+        <div class="flex items-center gap-1.5 sm:gap-2">
+            <button id="lockStudioBtn" title="Kunci Semula Studio" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+            </button>
+
+            <button id="installAppBtn" title="Pasang Sebagai Aplikasi Komputer / Tablet" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-indigo-600 dark:text-indigo-400 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+            </button>
+
+            <button id="themeToggleBtn" title="Tukar Tema Cerah/Gelap" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 transition">
+                <svg id="sunIcon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+                <svg id="moonIcon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+            </button>
+
+            <button id="resetBtn" title="Set Semula Parameter Asal" class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-xs font-medium text-slate-700 dark:text-zinc-300 flex items-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                <span class="hidden md:inline">Reset</span>
+            </button>
+
+            <!-- Blue Download Button -->
+            <div class="relative flex items-center">
+                <button id="export3mfBtn" class="px-3 sm:px-3.5 py-1.5 rounded-l-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                    <span class="hidden sm:inline">Muat Turun</span>
+                    <span>(.3MF)</span>
+                </button>
+
+                <button id="moreExportBtn" class="px-1.5 py-1.5 rounded-r-lg border-l border-blue-700 bg-blue-600 hover:bg-blue-700 text-white transition" title="Pilihan Eksport Lain">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                </button>
+
+                <div id="exportDropdown" class="hidden absolute right-0 top-10 w-72 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 shadow-2xl py-1.5 z-50 text-xs">
+                    <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Pilih Format Fail</div>
+                    <button id="exportCombinedStlBtn" class="w-full text-left px-3 py-2.5 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-between transition">
+                        <div>
+                            <div class="font-semibold text-slate-800 dark:text-zinc-100">Muat Turun 1 Fail (.STL)</div>
+                            <div id="exportStlDesc" class="text-[10px] text-slate-500 dark:text-zinc-400">Semua 3 lapisan digabung dalam 1 fail STL</div>
+                        </div>
+                        <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-zinc-700">.stl</span>
+                    </button>
+                    <button id="exportZipBtn" class="w-full text-left px-3 py-2.5 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-between border-t border-slate-100 dark:border-zinc-800 transition">
+                        <div>
+                            <div id="exportZipTitle" class="font-semibold text-slate-800 dark:text-zinc-100">3 Fail STL Berasingan (.ZIP)</div>
+                            <div class="text-[10px] text-slate-500 dark:text-zinc-400">Fail berasingan mengikut lapisan warna</div>
+                        </div>
+                        <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-zinc-700">.zip</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN SPLIT WORKSPACE -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+
+        <!-- LEFT / CENTER: 3D VIEWPORT -->
+        <section class="relative flex-1 h-[44vh] md:h-full bg-slate-200 dark:bg-zinc-950 overflow-hidden">
+            <div id="canvasContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+            <!-- Status Pill (Top Left of Viewport) -->
+            <div class="absolute top-3 left-3 flex flex-wrap items-center gap-2 pointer-events-none">
+                <div id="statusBadge" class="glass-panel bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2 text-xs font-medium">
+                    <span id="statusDot" class="w-2 h-2 rounded-full bg-bambu-500"></span>
+                    <span id="statusText">Sedia • 256×256mm Smooth Plate</span>
+                </div>
+                <div id="statsBadge" class="glass-panel bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800 px-3 py-1.5 rounded-full shadow-sm text-[11px] font-mono text-slate-600 dark:text-zinc-300 hidden sm:block">
+                    1 Tag (3-Layer) • Tinggi: 3.5mm
+                </div>
+            </div>
+
+            <!-- Compact Layer Visibility Card (Top Right of Viewport) -->
+            <div class="absolute top-3 right-3 glass-panel bg-white/92 dark:bg-zinc-900/92 border border-slate-200/90 dark:border-zinc-800 p-2 rounded-xl shadow-md flex flex-col gap-1 text-[11px]">
+                <label class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer transition">
+                    <input type="checkbox" id="visText" checked class="rounded text-blue-600 focus:ring-0">
+                    <span id="swatchVisText" class="w-2.5 h-2.5 rounded-full border border-black/25 shadow-2xs" style="background:#FF0000"></span>
+                    <span id="hudLabelText" class="font-semibold text-slate-700 dark:text-zinc-200">3. Text</span>
+                </label>
+                <label id="hudMiddleRow" class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer transition">
+                    <input type="checkbox" id="visMiddle" checked class="rounded text-blue-600 focus:ring-0">
+                    <span id="swatchVisMiddle" class="w-2.5 h-2.5 rounded-full border border-black/25 shadow-2xs" style="background:#000000"></span>
+                    <span class="font-semibold text-slate-700 dark:text-zinc-200">2. Middle</span>
+                </label>
+                <label class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer transition">
+                    <input type="checkbox" id="visBase" checked class="rounded text-blue-600 focus:ring-0">
+                    <span id="swatchVisBase" class="w-2.5 h-2.5 rounded-full border border-black/25 shadow-2xs" style="background:#FFFFFF"></span>
+                    <span class="font-semibold text-slate-700 dark:text-zinc-200">1. Base + Ring</span>
+                </label>
+            </div>
+
+            <!-- Camera View Presets -->
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 glass-panel bg-white/95 dark:bg-zinc-900/95 border border-slate-200/90 dark:border-zinc-800 px-2 py-1 rounded-full shadow-lg flex items-center gap-1 text-xs whitespace-nowrap">
+                <button data-cam="iso" class="cam-btn px-3 py-1 rounded-full font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 transition">3D Iso</button>
+                <button data-cam="top" class="cam-btn px-3 py-1 rounded-full font-medium text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition">Atas</button>
+                <button data-cam="front" class="cam-btn px-3 py-1 rounded-full font-medium text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition">Sisi</button>
+                <button data-cam="fit" class="cam-btn px-3 py-1 rounded-full font-medium text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition">Fokus Tag</button>
+            </div>
+        </section>
+
+        <!-- RIGHT: PARAMETER CUSTOMIZER SIDEBAR -->
+        <aside class="w-full md:w-[410px] lg:w-[460px] xl:w-[480px] h-[56vh] md:h-full bg-slate-50 dark:bg-zinc-900 border-t md:border-t-0 md:border-l border-slate-200 dark:border-zinc-800 flex flex-col shrink-0 z-10">
+            
+            <div class="px-3.5 py-2.5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="sidebarLayerPill" class="px-2 py-0.5 rounded bg-indigo-950 dark:bg-indigo-600 text-white font-mono text-[10px] font-bold tracking-wider">3-LAYER</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-300">CUSTOMIZER</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button id="openBulkModalBtn" class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 text-[11px] font-semibold transition flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                        Tampal Pukal (1-10)
+                    </button>
+                    <button id="clearNamesBtn" class="px-2.5 py-1 rounded-md bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-500/30 text-[11px] font-semibold transition">
+                        Kosongkan
+                    </button>
+                </div>
+            </div>
+
+            <div id="customizerScroll" class="flex-1 overflow-y-auto p-3 space-y-2.5 select-text">
+
+                <!-- GROUP 1: Left Column Names -->
+                <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
+                    <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center font-mono text-[11px] font-bold">1</span>
+                            Left Column Names (Name 1 to 5)
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                    </summary>
+                    <div id="leftNamesContainer" class="p-3 space-y-2 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30"></div>
+                </details>
+
+                <!-- GROUP 2: Right Column Names -->
+                <details class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
+                    <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center font-mono text-[11px] font-bold">2</span>
+                            Right Column Names (Name 6 to 10)
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                    </summary>
+                    <div id="rightNamesContainer" class="p-3 space-y-2 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30"></div>
+                </details>
+
+                <!-- GROUP 3: Layout & Bed Position -->
+                <details class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
+                    <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center font-mono text-[11px] font-bold">3</span>
+                            Layout & Bed Position
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                    </summary>
+                    <div class="p-3 grid grid-cols-2 gap-2.5 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30 text-xs">
+                        <div>
+                            <label class="block text-[11px] font-mono text-slate-500 dark:text-zinc-400 mb-1">Bed_Start_X (mm)</label>
+                            <input type="number" step="1" data-param="Bed_Start_X" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-mono text-slate-500 dark:text-zinc-400 mb-1">Bed_Start_Y (mm)</label>
+                            <input type="number" step="1" data-param="Bed_Start_Y" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-mono text-slate-500 dark:text-zinc-400 mb-1">Column_Gap_X (mm)</label>
+                            <input type="number" step="1" data-param="Column_Gap_X" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-mono text-slate-500 dark:text-zinc-400 mb-1">Tag_Gap_Y (mm)</label>
+                            <input type="number" step="1" data-param="Tag_Gap_Y" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                </details>
+
+                <!-- GROUP 4: Font & Text Style -->
+                <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
+                    <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center font-mono text-[11px] font-bold">4</span>
+                            Font & Text Style
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                    </summary>
+                    <div class="p-3 space-y-3 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30 text-xs">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-mono text-slate-600 dark:text-zinc-400">Font_choice</label>
+                                <span id="fontLoadStatus" class="text-[11px] font-semibold text-blue-600 dark:text-blue-400">Font Aktif</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <select data-param="Font_choice" id="fontSelect" class="param-input flex-1 px-2.5 py-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-xs font-medium focus:outline-none focus:border-blue-500"></select>
+                                <label for="localFontInput" title="Muat Naik Fail Fon Sendiri (.ttf / .otf)" class="px-2.5 py-2 rounded-lg bg-white dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 cursor-pointer flex items-center gap-1 shrink-0 transition">
+                                    <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                                    <span class="text-[11px] font-mono font-semibold">.TTF</span>
+                                </label>
+                                <input type="file" id="localFontInput" accept=".ttf,.otf,.woff" class="hidden">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Text_size (mm)</label>
+                                <input type="number" step="0.5" min="4" max="40" data-param="Text_size" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Line_Spacing</label>
+                                <input type="number" step="0.2" data-param="Line_Spacing" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-[10.5px] font-mono text-blue-600 dark:text-blue-400 font-semibold mb-1 truncate">Word_Spacing</label>
+                                <input type="number" step="0.2" data-param="Word_Spacing" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Overall_Shift_X</label>
+                                <input type="number" step="0.5" data-param="Overall_Shift_X" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Line_1_Shift_X</label>
+                                <input type="number" step="0.5" data-param="Line_1_Shift_X" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Line_2_Shift_X</label>
+                                <input type="number" step="0.5" data-param="Line_2_Shift_X" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- GROUP 5: Thickness & Margins -->
+                <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
+                    <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-mono text-[11px] font-bold">5</span>
+                            <span id="group5Title">Thickness & Margins (3 Layers)</span>
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                    </summary>
+                    <div class="p-3 space-y-3 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30 text-xs">
+                        <div id="offsetGridRow" class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[11px] font-mono text-slate-600 dark:text-zinc-400 mb-1">Base_offset (mm)</label>
+                                <input type="number" step="0.1" min="0" max="10" data-param="Base_offset" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div id="ctrl_Middle_offset">
+                                <label class="block text-[11px] font-mono text-slate-600 dark:text-zinc-400 mb-1">Middle_offset (mm)</label>
+                                <input type="number" step="0.1" min="0" max="10" data-param="Middle_offset" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div id="thicknessGridRow" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Base_thickness</label>
+                                <input type="number" step="0.1" min="0.2" max="10" data-param="Base_thickness" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div id="ctrl_Middle_thickness">
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Middle_thickness</label>
+                                <input type="number" step="0.1" min="0.2" max="10" data-param="Middle_thickness" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-[10.5px] font-mono text-slate-600 dark:text-zinc-400 mb-1 truncate">Text_thickness</label>
+                                <input type="number" step="0.1" min="0.2" max="10" data-param="Text_thickness" class="param-input w-full px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800/50 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/50 transition">
+                            <div>
+                                <div class="text-[11px] font-bold text-blue-700 dark:text-blue-400">Auto-Cantum Tapak (Zero Floating Area)</div>
+                                <div class="text-[10px] text-slate-500 dark:text-zinc-400 leading-snug mt-0.5">Cantumkan huruf 'i', 'j', jarak & baris supaya tiada pulau terapung</div>
+                            </div>
+                            <input type="checkbox" data-param="Auto_Bridge_Base" class="param-input w-4 h-4 rounded text-blue-600 focus:ring-blue-500 shrink-0">
+                        </label>
+                    </div>
+                </details>
+
+                <!-- GROUP 6: Key Ring Settings -->
+                <details class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
+                    <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center font-mono text-[11px] font-bold">6</span>
+                            Key Ring Settings
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                    </summary>
+                    <div class="p-3 space-y-2.5 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30 text-xs">
+                        <label class="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 cursor-pointer hover:border-blue-500/40 transition">
+                            <span class="font-mono text-xs font-medium">Key_ring (Sertakan Lubang Ring)</span>
+                            <input type="checkbox" data-param="Key_ring" class="param-input w-4 h-4 rounded text-blue-600 focus:ring-blue-500">
+                        </label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[11px] font-mono text-slate-600 dark:text-zinc-400 mb-1">Ring_diameter_outer</label>
+                                <input type="number" step="0.1" min="2" max="25" data-param="Ring_diameter_outer" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-mono text-slate-600 dark:text-zinc-400 mb-1">Ring_diameter_inner</label>
+                                <input type="number" step="0.1" min="1" max="20" data-param="Ring_diameter_inner" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-mono text-slate-600 dark:text-zinc-400 mb-1">Ring_Width_Base</label>
+                                <input type="number" step="0.5" min="1" max="25" data-param="Ring_Width_Base" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-mono text-slate-600 dark:text-zinc-400 mb-1">Ring_Offset (X)</label>
+                                <input type="number" step="0.5" data-param="Ring_Offset" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[11px] font-mono text-slate-600 dark:text-zinc-400 mb-1">Key_ring_fine_y (Laraskan Y)</label>
+                                <input type="number" step="0.5" data-param="Key_ring_fine_y" class="param-input w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 font-mono text-xs font-medium focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- GROUP 7: Colors -->
+                <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
+                    <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center font-mono text-[11px] font-bold">7</span>
+                            <span id="group7Title">Colors (3 Filament Layers)</span>
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                    </summary>
+                    <div class="p-3 space-y-2 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30 text-xs">
+                        <div class="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800">
+                            <label id="label_Text_color" class="font-mono text-[11px] font-medium text-slate-600 dark:text-zinc-300">3. Text_color (Atas)</label>
+                            <div class="flex items-center gap-2">
+                                <span id="swatch_Text_color" class="w-5 h-5 rounded-md border border-slate-300 dark:border-zinc-600 shadow-inner"></span>
+                                <select data-param="Text_color" class="color-select param-input px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 font-mono text-xs focus:outline-none focus:border-blue-500"></select>
+                            </div>
+                        </div>
+                        <div id="row_Middle_color" class="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800">
+                            <label class="font-mono text-[11px] font-medium text-slate-600 dark:text-zinc-300">2. Middle_color (Tengah)</label>
+                            <div class="flex items-center gap-2">
+                                <span id="swatch_Middle_color" class="w-5 h-5 rounded-md border border-slate-300 dark:border-zinc-600 shadow-inner"></span>
+                                <select data-param="Middle_color" class="color-select param-input px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 font-mono text-xs focus:outline-none focus:border-blue-500"></select>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800">
+                            <label class="font-mono text-[11px] font-medium text-slate-600 dark:text-zinc-300">1. Base_color (Tapak)</label>
+                            <div class="flex items-center gap-2">
+                                <span id="swatch_Base_color" class="w-5 h-5 rounded-md border border-slate-300 dark:border-zinc-600 shadow-inner"></span>
+                                <select data-param="Base_color" class="color-select param-input px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 font-mono text-xs focus:outline-none focus:border-blue-500"></select>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+            </div>
+        </aside>
+    </main>
+
+    <!-- BULK PASTE MODAL -->
+    <div id="bulkModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold">Tampal Senarai Nama Pukal (Hingga 10 Keychain)</h3>
+                <button id="closeBulkModalBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
+                Masukkan satu nama setiap baris (maksimum 10 baris). Gunakan tanda <code class="px-1 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 font-mono">|</code> atau <code class="px-1 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 font-mono">/</code> untuk memisahkan Baris 1 dan Baris 2.
+            </p>
+            <textarea id="bulkTextarea" rows="8" placeholder="MUHAMMAD | FARRIS&#10;AISYAH | HUMAIRA&#10;AHMAD ZIYAD&#10;NURUL | IMAN" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 font-mono text-xs focus:outline-none focus:border-blue-500"></textarea>
+            <div class="flex justify-end gap-2">
+                <button id="cancelBulkBtn" class="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-zinc-700 text-xs font-medium hover:bg-slate-100 dark:hover:bg-zinc-800">Batal</button>
+                <button id="applyBulkBtn" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">Jana Semua Nama</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INSTALL AS APP (TABLET / DESKTOP) MODAL -->
+    <div id="installModal" class="hidden fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-bambu-500/15 text-bambu-500 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+                    </span>
+                    <h3 class="text-sm font-bold">Pasang Aplikasi Di Tablet & Komputer</h3>
+                </div>
+                <button id="closeInstallModalBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-1">
+                    <div class="font-bold text-slate-800 dark:text-white">1. Cara Guna Tanpa Internet (Offline)</div>
+                    <p>Buka pautan web ini <b>sekali sahaja semasa ada internet</b> supaya semua enjin 3D disimpan automatik ke dalam tablet anda. Selepas itu, anda boleh tutup Wi-Fi atau hidupkan <b>Airplane Mode</b> dan aplikasi tetap berjalan lancar!</p>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-1">
+                    <div class="font-bold text-slate-800 dark:text-white">2. Simpan Terus Di Skrin Utama Tablet</div>
+                    <p>Di Safari (iPad) atau Chrome (Android), tekan ikon <b>Share / Menu (⋮)</b> dan pilih <b>"Add to Home Screen"</b> supaya boleh dibuka seperti aplikasi penuh pada bila-bila masa.</p>
+                </div>
+
+                <div class="p-3 rounded-xl bg-bambu-500/10 border border-bambu-500/25 text-bambu-700 dark:text-bambu-300 space-y-1">
+                    <div class="font-bold">3. Fon Offline & Muat Naik Fon Sendiri (.TTF)</div>
+                    <p>Fon <b>Chewy</b> dan <b>Bentara Offline Block</b> sedia digunakan secara offline. Anda juga boleh tekan butang <b>.TTF</b> untuk guna fail fon dari dalam tablet anda.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button id="doneInstallModalBtn" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold">Faham</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastMsg" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-bambu-500"></span>
+        <span id="toastText">Berjaya!</span>
+    </div>
+
+    <script>
+        // ============================================================================
+        // 0. LOCK SCREEN AUTHENTICATION (PASSWORD: 1234)
+        // ============================================================================
+        const STUDIO_PASSWORD = "1234";
+
+        function initLockScreen() {
+            const lockScreen = document.getElementById('lockScreen');
+            const lockCard = document.getElementById('lockCard');
+            const unlockForm = document.getElementById('unlockForm');
+            const passwordInput = document.getElementById('passwordInput');
+            const lockErrorMsg = document.getElementById('lockErrorMsg');
+            const togglePwdVisBtn = document.getElementById('togglePwdVisBtn');
+            const lockStudioBtn = document.getElementById('lockStudioBtn');
+
+            togglePwdVisBtn.addEventListener('click', () => {
+                passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.focus();
+            });
+
+            unlockForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (passwordInput.value.trim() === STUDIO_PASSWORD) {
+                    lockErrorMsg.classList.add('hidden');
+                    lockScreen.classList.add('hidden');
+                    passwordInput.value = '';
+                    onWindowResize();
+                    showToast('Akses dibenarkan! Selamat datang ke Studio.');
+                } else {
+                    lockErrorMsg.classList.remove('hidden');
+                    lockCard.classList.remove('shake-error');
+                    void lockCard.offsetWidth;
+                    lockCard.classList.add('shake-error');
+                    passwordInput.select();
+                }
+            });
+
+            lockStudioBtn.addEventListener('click', () => {
+                passwordInput.value = '';
+                passwordInput.type = 'password';
+                lockErrorMsg.classList.add('hidden');
+                lockScreen.classList.remove('hidden');
+                setTimeout(() => passwordInput.focus(), 50);
+            });
+
+            setTimeout(() => passwordInput.focus(), 80);
+        }
+
+        // ============================================================================
+        // 1. BUILT-IN OFFLINE VECTOR FONT GENERATOR + PARAMETERS & COLOR MAP
+        // ============================================================================
+        function createBuiltInOfflineFont() {
+            if (typeof opentype === 'undefined') return null;
+
+            const notdefGlyph = new opentype.Glyph({ name: '.notdef', unicode: 0, advanceWidth: 550, path: new opentype.Path() });
+            const spaceGlyph = new opentype.Glyph({ name: 'space', unicode: 32, advanceWidth: 420, path: new opentype.Path() });
+
+            const strokes = {
+                'A': [[[80,0],[260,720],[340,720],[520,0],[410,0],[370,170],[230,170],[190,0]], [[255,270],[300,480],[345,270]]],
+                'B': [[[90,0],[90,720],[360,720],[470,640],[470,450],[390,375],[490,300],[490,90],[370,0]], [[200,420],[200,620],[340,620],[370,570],[370,470],[340,420]], [[200,100],[200,320],[350,320],[385,270],[385,150],[350,100]]],
+                'C': [[[480,150],[400,0],[180,0],[80,120],[80,600],[180,720],[400,720],[480,570],[380,520],[340,610],[220,610],[190,550],[190,170],[220,110],[340,110],[380,200]]],
+                'D': [[[90,0],[90,720],[350,720],[490,580],[490,140],[350,0]], [[200,110],[200,610],[320,610],[380,540],[380,180],[320,110]]],
+                'E': [[[90,0],[90,720],[460,720],[460,610],[200,610],[200,420],[420,420],[420,310],[200,310],[200,110],[460,110],[460,0]]],
+                'F': [[[90,0],[90,720],[460,720],[460,610],[200,610],[200,420],[410,420],[410,310],[200,310],[200,0]]],
+                'G': [[[490,380],[490,0],[400,0],[390,60],[330,0],[180,0],[80,120],[80,600],[180,720],[400,720],[480,580],[380,530],[340,610],[220,610],[190,550],[190,170],[220,110],[350,110],[385,160],[385,280],[290,280],[290,380]]],
+                'H': [[[90,0],[90,720],[200,720],[200,420],[390,420],[390,720],[500,720],[500,0],[390,0],[390,310],[200,310],[200,0]]],
+                'I': [[[110,0],[110,110],[220,110],[220,610],[110,610],[110,720],[440,720],[440,610],[330,610],[330,110],[440,110],[440,0]]],
+                'J': [[[90,180],[190,210],[210,110],[310,110],[340,160],[340,720],[450,720],[450,120],[350,0],[170,0]]],
+                'K': [[[90,0],[90,720],[200,720],[200,410],[390,720],[510,720],[310,390],[520,0],[395,0],[240,300],[200,240],[200,0]]],
+                'L': [[[90,0],[90,720],[200,720],[200,110],[460,110],[460,0]]],
+                'M': [[[80,0],[80,720],[200,720],[320,380],[440,720],[560,720],[560,0],[455,0],[455,480],[355,200],[285,200],[185,480],[185,0]]],
+                'N': [[[90,0],[90,720],[200,720],[395,250],[395,720],[500,720],[500,0],[395,0],[195,470],[195,0]]],
+                'O': [[[180,0],[80,120],[80,600],[180,720],[410,720],[510,600],[510,120],[410,0]], [[220,110],[370,110],[400,160],[400,560],[370,610],[220,610],[190,560],[190,160]]],
+                'P': [[[90,0],[90,720],[370,720],[490,610],[490,410],[370,300],[200,300],[200,0]], [[200,405],[200,615],[340,615],[380,570],[380,450],[340,405]]],
+                'Q': [[[180,0],[80,120],[80,600],[180,720],[410,720],[510,600],[510,150],[460,80],[520,10],[440,-50],[380,20],[340,0]], [[220,110],[360,110],[400,160],[400,560],[370,610],[220,610],[190,560],[190,160]]],
+                'R': [[[90,0],[90,720],[370,720],[490,610],[490,420],[390,330],[505,0],[385,0],[280,310],[200,310],[200,0]], [[200,410],[200,615],[340,615],[380,570],[380,455],[340,410]]],
+                'S': [[[80,160],[185,190],[215,105],[355,105],[385,155],[385,245],[345,285],[180,335],[90,425],[90,590],[190,720],[385,720],[480,585],[380,545],[350,615],[225,615],[195,570],[195,485],[235,445],[400,395],[490,305],[490,125],[385,0],[185,0]]],
+                'T': [[[70,610],[70,720],[510,720],[510,610],[345,610],[345,0],[235,0],[235,610]]],
+                'U': [[[90,130],[90,720],[200,720],[200,160],[235,110],[355,110],[390,160],[390,720],[500,720],[500,130],[395,0],[195,0]]],
+                'V': [[[65,720],[180,720],[295,190],[410,720],[525,720],[350,0],[240,0]]],
+                'W': [[[55,720],[160,720],[225,240],[300,560],[370,560],[445,240],[510,720],[615,720],[500,0],[400,0],[335,310],[270,0],[170,0]]],
+                'X': [[[75,0],[235,365],[85,720],[205,720],[295,480],[385,720],[505,720],[355,365],[515,0],[395,0],[295,250],[195,0]]],
+                'Y': [[[70,720],[190,720],[295,430],[400,720],[520,720],[350,310],[350,0],[240,0],[240,310]]],
+                'Z': [[[80,0],[80,105],[350,610],[90,610],[90,720],[490,720],[490,615],[220,110],[495,110],[495,0]]],
+                '0': [[[180,0],[80,120],[80,600],[180,720],[390,720],[490,600],[490,120],[390,0]], [[215,110],[355,110],[385,160],[385,560],[355,610],[215,610],[185,560],[185,160]]],
+                '1': [[[140,0],[140,105],[240,105],[240,575],[140,515],[140,625],[255,720],[350,720],[350,105],[445,105],[445,0]]],
+                '2': [[[85,0],[85,105],[340,420],[370,480],[370,565],[335,610],[225,610],[190,555],[190,490],[85,490],[85,585],[185,720],[375,720],[475,595],[475,455],[425,365],[225,110],[480,110],[480,0]]],
+                '3': [[[85,145],[185,180],[215,105],[345,105],[380,155],[380,265],[340,315],[235,315],[235,415],[335,415],[370,460],[370,565],[335,610],[220,610],[190,545],[90,575],[185,720],[375,720],[475,600],[475,455],[415,375],[485,290],[485,130],[380,0],[180,0]]],
+                '4': [[[325,0],[325,155],[75,155],[75,260],[315,720],[430,720],[430,260],[505,260],[505,155],[430,155],[430,0]], [[185,260],[325,260],[325,535]]],
+                '5': [[[85,155],[185,185],[215,105],[345,105],[380,160],[380,310],[345,365],[215,365],[185,330],[95,350],[115,720],[465,720],[465,615],[205,615],[195,455],[245,470],[380,470],[485,350],[485,130],[380,0],[180,0]]],
+                '6': [[[185,0],[85,125],[85,590],[190,720],[385,720],[475,585],[375,545],[345,615],[225,615],[190,560],[190,420],[245,455],[385,455],[485,335],[485,130],[380,0]], [[215,105],[350,105],[380,155],[380,295],[350,350],[215,350],[190,300],[190,155]]],
+                '7': [[[155,0],[355,610],[90,610],[90,720],[480,720],[480,620],[275,0]]],
+                '8': [[[180,0],[80,115],[80,285],[150,365],[90,440],[90,595],[190,720],[380,720],[480,595],[480,440],[420,365],[490,285],[490,115],[390,0]], [[215,420],[355,420],[380,465],[380,570],[355,615],[215,615],[190,570],[190,465]], [[210,105],[360,105],[385,155],[385,265],[360,315],[210,315],[185,265],[185,155]]],
+                '9': [[[185,0],[95,135],[195,175],[225,105],[345,105],[380,160],[380,300],[325,265],[185,265],[85,385],[85,590],[190,720],[385,720],[485,595],[485,130],[380,0]], [[220,370],[355,370],[380,420],[380,565],[355,615],[220,615],[190,565],[190,425]]],
+                '-': [[[110,310],[110,420],[430,420],[430,310]]],
+                '.': [[[130,0],[130,120],[250,120],[250,0]]],
+                '&': [[[175,0],[85,105],[85,255],[175,355],[125,445],[125,595],[215,720],[365,720],[455,600],[455,465],[360,465],[360,575],[330,615],[250,615],[225,575],[225,475],[290,385],[395,260],[440,340],[520,290],[455,175],[525,85],[450,0],[390,70],[330,0]], [[210,105],[315,105],[350,150],[255,275],[185,215],[185,145]]]
+            };
+
+            const glyphs = [notdefGlyph, spaceGlyph];
+            Object.keys(strokes).forEach(ch => {
+                const path = new opentype.Path();
+                let maxX = 480;
+                strokes[ch].forEach(contour => {
+                    contour.forEach((pt, idx) => {
+                        if (pt[0] > maxX) maxX = pt[0];
+                        if (idx === 0) path.moveTo(pt[0], pt[1]);
+                        else path.lineTo(pt[0], pt[1]);
+                    });
+                    path.close();
+                });
+
+                glyphs.push(new opentype.Glyph({
+                    name: ch,
+                    unicode: ch.charCodeAt(0),
+                    advanceWidth: maxX + 75,
+                    path: path
+                }));
+            });
+
+            return new opentype.Font({
+                familyName: 'Bentara Offline Block',
+                styleName: 'Bold',
+                unitsPerEm: 1000,
+                ascender: 760,
+                descender: -200,
+                glyphs: glyphs
+            });
+        }
+
+        const COLOR_MAP = {
+            red: "#FF0000", blue: "#0000FF", yellow: "#FFFF00", green: "#008000",
+            white: "#FFFFFF", black: "#000000", brown: "#A52A2A", purple: "#800080",
+            pink: "#FFC0CB", gray: "#808080", orange: "#FFA500", gold: "#FFD700"
+        };
+
+        const FONT_LIST = [
+            "Bentara Offline Block (Built-in)",
+            "Alfa Slab One", "Archivo Black", "Audiowide", "Bangers", "Bebas Neue",
+            "Bodoni", "Bree Serif", "Bubblegum Sans", "Bungee", "Calibri",
+            "Carter One", "Changa One", "Cherry Bomb One", "Chewy", "Cookie",
+            "Courier New", "Dogica", "DynaPuff", "Futura", "Garamond",
+            "Grenze", "Impact", "Jaunt: 8-bit", "Knewave", "Leckerli One",
+            "Lilita One", "Lobster", "Mogra", "MonteCarlo", "Noto Sans (World)",
+            "Oleo Script", "Oswald", "Pacifico", "Pixelify Sans", "Poppins Black",
+            "Press Start 2P", "Roboto", "Shrikhand", "Space Mono", "Sriracha",
+            "Tickerbit", "Times New Roman"
+        ];
+
+        const FONT_URLS = {
+            "Chewy": "https://raw.githubusercontent.com/google/fonts/main/apache/chewy/Chewy-Regular.ttf",
+            "Alfa Slab One": "https://raw.githubusercontent.com/google/fonts/main/ofl/alfaslabone/AlfaSlabOne-Regular.ttf",
+            "Archivo Black": "https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/ArchivoBlack-Regular.ttf",
+            "Audiowide": "https://raw.githubusercontent.com/google/fonts/main/ofl/audiowide/Audiowide-Regular.ttf",
+            "Bangers": "https://raw.githubusercontent.com/google/fonts/main/ofl/bangers/Bangers-Regular.ttf",
+            "Bebas Neue": "https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf",
+            "Bodoni": "https://raw.githubusercontent.com/google/fonts/main/ofl/bodonimoda/BodoniModa%5Bopsz%2Cwght%5D.ttf",
+            "Bree Serif": "https://raw.githubusercontent.com/google/fonts/main/ofl/breeserif/BreeSerif-Regular.ttf",
+            "Bubblegum Sans": "https://raw.githubusercontent.com/google/fonts/main/ofl/bubblegumsans/BubblegumSans-Regular.ttf",
+            "Bungee": "https://raw.githubusercontent.com/google/fonts/main/ofl/bungee/Bungee-Regular.ttf",
+            "Calibri": "https://raw.githubusercontent.com/google/fonts/main/ofl/carlito/Carlito-Bold.ttf",
+            "Carter One": "https://raw.githubusercontent.com/google/fonts/main/ofl/carterone/CarterOne.ttf",
+            "Changa One": "https://raw.githubusercontent.com/google/fonts/main/ofl/changaone/ChangaOne-Regular.ttf",
+            "Cherry Bomb One": "https://raw.githubusercontent.com/google/fonts/main/ofl/cherrybombone/CherryBombOne-Regular.ttf",
+            "Cookie": "https://raw.githubusercontent.com/google/fonts/main/ofl/cookie/Cookie-Regular.ttf",
+            "Courier New": "https://raw.githubusercontent.com/google/fonts/main/ofl/courierprime/CourierPrime-Bold.ttf",
+            "Dogica": "https://raw.githubusercontent.com/google/fonts/main/ofl/pressstart2p/PressStart2P-Regular.ttf",
+            "DynaPuff": "https://raw.githubusercontent.com/google/fonts/main/ofl/dynapuff/DynaPuff%5Bwdth%2Cwght%5D.ttf",
+            "Futura": "https://raw.githubusercontent.com/google/fonts/main/ofl/jost/Jost%5Bwght%5D.ttf",
+            "Garamond": "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/EBGaramond%5Bwght%5D.ttf",
+            "Grenze": "https://raw.githubusercontent.com/google/fonts/main/ofl/grenze/Grenze-Bold.ttf",
+            "Impact": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
+            "Jaunt: 8-bit": "https://raw.githubusercontent.com/google/fonts/main/ofl/vt323/VT323-Regular.ttf",
+            "Knewave": "https://raw.githubusercontent.com/google/fonts/main/ofl/knewave/Knewave-Regular.ttf",
+            "Leckerli One": "https://raw.githubusercontent.com/google/fonts/main/ofl/leckerlione/LeckerliOne-Regular.ttf",
+            "Lilita One": "https://raw.githubusercontent.com/google/fonts/main/ofl/lilitaone/LilitaOne-Regular.ttf",
+            "Lobster": "https://raw.githubusercontent.com/google/fonts/main/ofl/lobster/Lobster-Regular.ttf",
+            "Mogra": "https://raw.githubusercontent.com/google/fonts/main/ofl/mogra/Mogra-Regular.ttf",
+            "MonteCarlo": "https://raw.githubusercontent.com/google/fonts/main/ofl/montecarlo/MonteCarlo-Regular.ttf",
+            "Noto Sans (World)": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf",
+            "Oleo Script": "https://raw.githubusercontent.com/google/fonts/main/ofl/oleoscript/OleoScript-Bold.ttf",
+            "Oswald": "https://raw.githubusercontent.com/google/fonts/main/ofl/oswald/Oswald%5Bwght%5D.ttf",
+            "Pacifico": "https://raw.githubusercontent.com/google/fonts/main/ofl/pacifico/Pacifico-Regular.ttf",
+            "Pixelify Sans": "https://raw.githubusercontent.com/google/fonts/main/ofl/pixelifysans/PixelifySans%5Bwght%5D.ttf",
+            "Poppins Black": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-Black.ttf",
+            "Press Start 2P": "https://raw.githubusercontent.com/google/fonts/main/ofl/pressstart2p/PressStart2P-Regular.ttf",
+            "Roboto": "https://raw.githubusercontent.com/google/fonts/main/ofl/roboto/Roboto%5Bwdth%2Cwght%5D.ttf",
+            "Shrikhand": "https://raw.githubusercontent.com/google/fonts/main/ofl/shrikhand/Shrikhand-Regular.ttf",
+            "Space Mono": "https://raw.githubusercontent.com/google/fonts/main/ofl/spacemono/SpaceMono-Bold.ttf",
+            "Sriracha": "https://raw.githubusercontent.com/google/fonts/main/ofl/sriracha/Sriracha-Regular.ttf",
+            "Tickerbit": "https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/Silkscreen-Regular.ttf",
+            "Times New Roman": "https://raw.githubusercontent.com/google/fonts/main/ofl/tinos/Tinos-Bold.ttf"
+        };
+
+        const DEFAULT_PARAMS = {
+            Layer_Mode: 3,
+            Name_1_Line_1: "MUHAMMAD", Name_1_Line_2: "FARRIS",
+            Name_2_Line_1: "", Name_2_Line_2: "",
+            Name_3_Line_1: "", Name_3_Line_2: "",
+            Name_4_Line_1: "", Name_4_Line_2: "",
+            Name_5_Line_1: "", Name_5_Line_2: "",
+            Name_6_Line_1: "", Name_6_Line_2: "",
+            Name_7_Line_1: "", Name_7_Line_2: "",
+            Name_8_Line_1: "", Name_8_Line_2: "",
+            Name_9_Line_1: "", Name_9_Line_2: "",
+            Name_10_Line_1: "", Name_10_Line_2: "",
+            Bed_Start_X: -90.0,
+            Bed_Start_Y: -80.0,
+            Column_Gap_X: 120.0,
+            Tag_Gap_Y: 40.0,
+            Font_choice: "Chewy",
+            Overall_Shift_X: 0.0,
+            Line_1_Shift_X: 0.0,
+            Line_2_Shift_X: 0.0,
+            Text_size: 12,
+            Line_Spacing: 1.0,
+            Word_Spacing: 0.0,
+            Base_offset: 2.0,
+            Middle_offset: 1.0,
+            Base_thickness: 1.5,
+            Middle_thickness: 0.8,
+            Text_thickness: 1.2,
+            Auto_Bridge_Base: true,
+            Key_ring: true,
+            Ring_diameter_outer: 7.5,
+            Ring_diameter_inner: 4.0,
+            Ring_Width_Base: 8.0,
+            Ring_Offset: 3.0,
+            Key_ring_fine_y: 0,
+            Text_color: "red",
+            Middle_color: "black",
+            Base_color: "white"
+        };
+
+        let params = { ...DEFAULT_PARAMS };
+        const fontCache = {};
+        let currentFont = null;
+        let builtInOfflineFont = null;
+
+        // ============================================================================
+        // 2. UI INITIALIZATION, UP/DOWN STEPPER BUTTONS & 2/3-LAYER SWITCHER
+        // ============================================================================
+        function enhanceNumberInputsWithUpDownButtons() {
+            document.querySelectorAll('input[type="number"].param-input').forEach(input => {
+                if (input.dataset.stepperEnhanced) return;
+                input.dataset.stepperEnhanced = "true";
+
+                const wrapper = document.createElement('div');
+                wrapper.className = "flex items-stretch rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/30 transition";
+
+                input.parentNode.insertBefore(wrapper, input);
+                input.className = "param-input flex-1 min-w-0 w-full px-2 py-1.5 bg-transparent border-0 font-mono text-xs font-semibold text-slate-800 dark:text-zinc-100 focus:outline-none";
+                wrapper.appendChild(input);
+
+                const btnStack = document.createElement('div');
+                btnStack.className = "flex flex-col border-l border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/90 shrink-0 w-7 select-none";
+
+                const btnUp = document.createElement('button');
+                btnUp.type = "button";
+                btnUp.tabIndex = -1;
+                btnUp.title = "Naikkan Nilai (+)";
+                btnUp.className = "flex-1 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-blue-500 hover:text-white active:bg-blue-600 border-b border-slate-200 dark:border-zinc-700 transition";
+                btnUp.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>`;
+
+                const btnDown = document.createElement('button');
+                btnDown.type = "button";
+                btnDown.tabIndex = -1;
+                btnDown.title = "Turunkan Nilai (−)";
+                btnDown.className = "flex-1 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-blue-500 hover:text-white active:bg-blue-600 transition";
+                btnDown.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>`;
+
+                btnStack.appendChild(btnUp);
+                btnStack.appendChild(btnDown);
+                wrapper.appendChild(btnStack);
+
+                const applyStep = (direction) => {
+                    const stepStr = input.getAttribute('step') || '1';
+                    const step = parseFloat(stepStr) || 1;
+                    const decimals = stepStr.includes('.') ? stepStr.split('.')[1].length : 0;
+                    const minAttr = input.getAttribute('min');
+                    const maxAttr = input.getAttribute('max');
+                    const min = minAttr !== null ? parseFloat(minAttr) : -Infinity;
+                    const max = maxAttr !== null ? parseFloat(maxAttr) : Infinity;
+
+                    let current = parseFloat(input.value);
+                    if (isNaN(current)) current = 0;
+
+                    let next = current + (direction * step);
+                    next = Math.min(max, Math.max(min, next));
+                    next = Number(next.toFixed(decimals));
+
+                    input.value = next;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                };
+
+                const bindHoldStepper = (btn, dir) => {
+                    let holdTimeout = null;
+                    let repeatInterval = null;
+
+                    const stopHold = () => {
+                        clearTimeout(holdTimeout);
+                        clearInterval(repeatInterval);
+                        holdTimeout = null;
+                        repeatInterval = null;
+                    };
+
+                    const startHold = (e) => {
+                        e.preventDefault();
+                        applyStep(dir);
+                        stopHold();
+                        holdTimeout = setTimeout(() => {
+                            repeatInterval = setInterval(() => applyStep(dir), 75);
+                        }, 360);
+                    };
+
+                    btn.addEventListener('pointerdown', startHold);
+                    btn.addEventListener('pointerup', stopHold);
+                    btn.addEventListener('pointerleave', stopHold);
+                    btn.addEventListener('pointercancel', stopHold);
+                };
+
+                bindHoldStepper(btnUp, 1);
+                bindHoldStepper(btnDown, -1);
+            });
+        }
+
+        function initUI() {
+            builtInOfflineFont = createBuiltInOfflineFont();
+            if (builtInOfflineFont) {
+                fontCache["Bentara Offline Block (Built-in)"] = builtInOfflineFont;
+            }
+
+            const leftContainer = document.getElementById('leftNamesContainer');
+            const rightContainer = document.getElementById('rightNamesContainer');
+
+            for (let i = 1; i <= 10; i++) {
+                const card = document.createElement('div');
+                card.className = "p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 space-y-1.5";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-zinc-200">Tag #${i}</span>
+                        <span class="text-[10px] font-mono text-slate-400">Name_${i}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <input type="text" placeholder="Line 1 (cth: AHMAD)" data-param="Name_${i}_Line_1" class="param-input w-full px-2.5 py-1.5 rounded-md bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 text-xs font-medium focus:outline-none focus:border-blue-500 transition">
+                        <input type="text" placeholder="Line 2 (pilihan)" data-param="Name_${i}_Line_2" class="param-input w-full px-2.5 py-1.5 rounded-md bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 text-xs font-medium focus:outline-none focus:border-blue-500 transition">
+                    </div>
+                `;
+                if (i <= 5) leftContainer.appendChild(card);
+                else rightContainer.appendChild(card);
+            }
+
+            const fontSelect = document.getElementById('fontSelect');
+            FONT_LIST.forEach(fontName => {
+                const opt = document.createElement('option');
+                opt.value = fontName;
+                opt.textContent = fontName;
+                fontSelect.appendChild(opt);
+            });
+
+            document.querySelectorAll('.color-select').forEach(select => {
+                Object.keys(COLOR_MAP).forEach(colorKey => {
+                    const opt = document.createElement('option');
+                    opt.value = colorKey;
+                    opt.textContent = colorKey;
+                    select.appendChild(opt);
+                });
+            });
+
+            enhanceNumberInputsWithUpDownButtons();
+            syncInputsFromParams();
+            updateLayerModeUI();
+            attachEventListeners();
+        }
+
+        function setLayerMode(mode) {
+            params.Layer_Mode = mode === 2 ? 2 : 3;
+            updateLayerModeUI();
+            scheduleRebuild(10);
+            showToast(`Mod ditukar kepada Keychain ${params.Layer_Mode} Layer`);
+        }
+
+        function updateLayerModeUI() {
+            const is3Layer = params.Layer_Mode === 3;
+            const btn2 = document.getElementById('mode2LayerBtn');
+            const btn3 = document.getElementById('mode3LayerBtn');
+
+            if (is3Layer) {
+                btn3.className = "px-3 sm:px-3.5 py-1 rounded-full text-xs font-bold bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200/70 dark:border-zinc-700 transition flex items-center gap-1.5";
+                btn3.querySelector('span').className = "w-2 h-2 rounded-full bg-bambu-500";
+                btn2.className = "px-3 sm:px-3.5 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5";
+                btn2.querySelector('span').className = "w-1.5 h-1.5 rounded-full bg-current opacity-50";
+
+                document.getElementById('sidebarLayerPill').textContent = "3-LAYER";
+                document.getElementById('group5Title').textContent = "Thickness & Margins (3 Layers)";
+                document.getElementById('group7Title').textContent = "Colors (3 Filament Layers)";
+                document.getElementById('label_Text_color').textContent = "3. Text_color (Atas)";
+                document.getElementById('hudLabelText').textContent = "3. Text";
+                document.getElementById('exportStlDesc').textContent = "Semua 3 lapisan digabung dalam 1 fail STL";
+                document.getElementById('exportZipTitle').textContent = "3 Fail STL Berasingan (.ZIP)";
+
+                document.getElementById('offsetGridRow').className = "grid grid-cols-2 gap-2.5";
+                document.getElementById('thicknessGridRow').className = "grid grid-cols-2 sm:grid-cols-3 gap-2";
+            } else {
+                btn2.className = "px-3 sm:px-3.5 py-1 rounded-full text-xs font-bold bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm border border-slate-200/70 dark:border-zinc-700 transition flex items-center gap-1.5";
+                btn2.querySelector('span').className = "w-2 h-2 rounded-full bg-bambu-500";
+                btn3.className = "px-3 sm:px-3.5 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5";
+                btn3.querySelector('span').className = "w-1.5 h-1.5 rounded-full bg-current opacity-50";
+
+                document.getElementById('sidebarLayerPill').textContent = "2-LAYER";
+                document.getElementById('group5Title').textContent = "Thickness & Margins (2 Layers)";
+                document.getElementById('group7Title').textContent = "Colors (2 Filament Layers)";
+                document.getElementById('label_Text_color').textContent = "2. Text_color (Atas)";
+                document.getElementById('hudLabelText').textContent = "2. Text";
+                document.getElementById('exportStlDesc').textContent = "Kedua-dua lapisan digabung dalam 1 fail STL";
+                document.getElementById('exportZipTitle').textContent = "2 Fail STL Berasingan (.ZIP)";
+
+                document.getElementById('offsetGridRow').className = "grid grid-cols-1 gap-2.5";
+                document.getElementById('thicknessGridRow').className = "grid grid-cols-2 gap-2.5";
+            }
+
+            document.getElementById('ctrl_Middle_offset').classList.toggle('hidden', !is3Layer);
+            document.getElementById('ctrl_Middle_thickness').classList.toggle('hidden', !is3Layer);
+            document.getElementById('row_Middle_color').classList.toggle('hidden', !is3Layer);
+            document.getElementById('hudMiddleRow').classList.toggle('hidden', !is3Layer);
+            layerGroups.middle.visible = is3Layer && document.getElementById('visMiddle').checked;
+        }
+
+        function syncInputsFromParams() {
+            document.querySelectorAll('.param-input').forEach(el => {
+                const key = el.dataset.param;
+                if (!(key in params)) return;
+                if (el.type === 'checkbox') {
+                    el.checked = Boolean(params[key]);
+                } else {
+                    el.value = params[key];
+                }
+            });
+            updateColorSwatches();
+        }
+
+        function updateColorSwatches() {
+            ['Text_color', 'Middle_color', 'Base_color'].forEach(key => {
+                const hex = COLOR_MAP[params[key]] || '#FFFFFF';
+                const swatch = document.getElementById(`swatch_${key}`);
+                if (swatch) swatch.style.backgroundColor = hex;
+            });
+            document.getElementById('swatchVisText').style.backgroundColor = COLOR_MAP[params.Text_color];
+            document.getElementById('swatchVisMiddle').style.backgroundColor = COLOR_MAP[params.Middle_color];
+            document.getElementById('swatchVisBase').style.backgroundColor = COLOR_MAP[params.Base_color];
+        }
+
+        function getReadyStatusLabel() {
+            return navigator.onLine
+                ? 'Online • 256×256mm Smooth Plate'
+                : 'Offline Aktif • 256×256mm Smooth Plate';
+        }
+
+        let rebuildTimer = null;
+        function scheduleRebuild(delay = 140) {
+            clearTimeout(rebuildTimer);
+            setStatus('Menjana geometri 3D...', true);
+            rebuildTimer = setTimeout(async () => {
+                await ensureFontLoaded(params.Font_choice);
+                rebuild3DModels();
+                setStatus(getReadyStatusLabel(), false);
+            }, delay);
+        }
+
+        function attachEventListeners() {
+            document.getElementById('mode2LayerBtn').addEventListener('click', () => setLayerMode(2));
+            document.getElementById('mode3LayerBtn').addEventListener('click', () => setLayerMode(3));
+
+            window.addEventListener('online', () => {
+                setStatus(getReadyStatusLabel(), false);
+                showToast('Sambungan internet dikesan (Mod Online)');
+            });
+            window.addEventListener('offline', () => {
+                setStatus(getReadyStatusLabel(), false);
+                showToast('Tiada internet — Mod Offline automatik diaktifkan');
+            });
+
+            // Local Custom Font (.TTF / .OTF) Upload Handler (100% Offline)
+            document.getElementById('localFontInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const parsedFont = opentype.parse(arrayBuffer);
+                    const customName = `[Lokal] ${file.name.replace(/\.[^/.]+$/, "")}`;
+                    fontCache[customName] = parsedFont;
+
+                    const fontSelect = document.getElementById('fontSelect');
+                    let existingOpt = Array.from(fontSelect.options).find(o => o.value === customName);
+                    if (!existingOpt) {
+                        const opt = document.createElement('option');
+                        opt.value = customName;
+                        opt.textContent = customName;
+                        fontSelect.insertBefore(opt, fontSelect.firstChild);
+                    }
+                    fontSelect.value = customName;
+                    params.Font_choice = customName;
+                    currentFont = parsedFont;
+                    document.getElementById('fontLoadStatus').textContent = "Fon Lokal";
+                    rebuild3DModels();
+                    showToast(`Fon lokal "${customName}" berjaya dimuatkan!`);
+                } catch (err) {
+                    console.error(err);
+                    showToast('Gagal membaca fail fon. Pastikan format .TTF atau .OTF');
+                }
+                e.target.value = '';
+            });
+
+            document.querySelectorAll('.param-input').forEach(el => {
+                const eventName = (el.tagName === 'SELECT' || el.type === 'checkbox') ? 'change' : 'input';
+                el.addEventListener(eventName, (e) => {
+                    const key = e.target.dataset.param;
+                    if (e.target.type === 'checkbox') {
+                        params[key] = e.target.checked;
+                    } else if (e.target.type === 'number') {
+                        const val = parseFloat(e.target.value);
+                        params[key] = isNaN(val) ? 0 : val;
+                    } else {
+                        params[key] = e.target.value;
+                    }
+                    updateColorSwatches();
+                    scheduleRebuild(e.target.type === 'text' ? 180 : 60);
+                });
+            });
+
+            ['visText', 'visMiddle', 'visBase'].forEach(id => {
+                document.getElementById(id).addEventListener('change', () => {
+                    layerGroups.text.visible = document.getElementById('visText').checked;
+                    layerGroups.middle.visible = (params.Layer_Mode === 3) && document.getElementById('visMiddle').checked;
+                    layerGroups.base.visible = document.getElementById('visBase').checked;
+                });
+            });
+
+            document.getElementById('themeToggleBtn').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                updateSceneBackground();
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                params = { ...DEFAULT_PARAMS };
+                syncInputsFromParams();
+                updateLayerModeUI();
+                scheduleRebuild(10);
+                showToast('Parameter dikembalikan ke tetapan asal');
+            });
+
+            document.getElementById('clearNamesBtn').addEventListener('click', () => {
+                for (let i = 1; i <= 10; i++) {
+                    params[`Name_${i}_Line_1`] = "";
+                    params[`Name_${i}_Line_2`] = "";
+                }
+                syncInputsFromParams();
+                scheduleRebuild(10);
+                showToast('Semua medan nama dikosongkan');
+            });
+
+            const bulkModal = document.getElementById('bulkModal');
+            document.getElementById('openBulkModalBtn').addEventListener('click', () => {
+                const lines = [];
+                for (let i = 1; i <= 10; i++) {
+                    const l1 = params[`Name_${i}_Line_1`].trim();
+                    const l2 = params[`Name_${i}_Line_2`].trim();
+                    if (l1 || l2) lines.push(l2 ? `${l1} | ${l2}` : l1);
+                }
+                document.getElementById('bulkTextarea').value = lines.join('\n');
+                bulkModal.classList.remove('hidden');
+            });
+            document.getElementById('closeBulkModalBtn').addEventListener('click', () => bulkModal.classList.add('hidden'));
+            document.getElementById('cancelBulkBtn').addEventListener('click', () => bulkModal.classList.add('hidden'));
+            document.getElementById('applyBulkBtn').addEventListener('click', () => {
+                const raw = document.getElementById('bulkTextarea').value.split('\n').map(s => s.trim()).filter(Boolean);
+                for (let i = 1; i <= 10; i++) {
+                    const entry = raw[i - 1] || "";
+                    if (entry.includes('|') || entry.includes('/')) {
+                        const parts = entry.split(/[|/]/);
+                        params[`Name_${i}_Line_1`] = (parts[0] || "").trim();
+                        params[`Name_${i}_Line_2`] = (parts[1] || "").trim();
+                    } else {
+                        params[`Name_${i}_Line_1`] = entry;
+                        params[`Name_${i}_Line_2`] = "";
+                    }
+                }
+                syncInputsFromParams();
+                bulkModal.classList.add('hidden');
+                scheduleRebuild(10);
+                showToast(`${Math.min(raw.length, 10)} nama berjaya dijana!`);
+            });
+
+            const installModal = document.getElementById('installModal');
+            document.getElementById('installAppBtn').addEventListener('click', () => installModal.classList.remove('hidden'));
+            document.getElementById('closeInstallModalBtn').addEventListener('click', () => installModal.classList.add('hidden'));
+            document.getElementById('doneInstallModalBtn').addEventListener('click', () => installModal.classList.add('hidden'));
+
+            const moreExportBtn = document.getElementById('moreExportBtn');
+            const exportDropdown = document.getElementById('exportDropdown');
+            moreExportBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                exportDropdown.classList.toggle('hidden');
+            });
+            window.addEventListener('click', () => exportDropdown.classList.add('hidden'));
+
+            document.getElementById('export3mfBtn').addEventListener('click', exportSingle3MF);
+            document.getElementById('exportZipBtn').addEventListener('click', exportThreeLayerZip);
+            document.getElementById('exportCombinedStlBtn').addEventListener('click', exportCombinedSTL);
+
+            document.querySelectorAll('.cam-btn').forEach(btn => {
+                btn.addEventListener('click', () => setCameraPreset(btn.dataset.cam));
+            });
+        }
+
+        // ============================================================================
+        // 3. HYBRID ONLINE + OFFLINE FONT LOADER (WITH FAST TIMEOUT & CACHE SUPPORT)
+        // ============================================================================
+        async function ensureFontLoaded(fontName) {
+            const statusEl = document.getElementById('fontLoadStatus');
+            if (fontCache[fontName]) {
+                currentFont = fontCache[fontName];
+                statusEl.textContent = fontName.startsWith('[Lokal]')
+                    ? "Fon Lokal"
+                    : (fontName.includes('Built-in') ? "Offline Aktif" : "Font Aktif");
+                return currentFont;
+            }
+
+            statusEl.textContent = "Memuat font...";
+            const url = FONT_URLS[fontName] || FONT_URLS["Chewy"];
+            try {
+                // Guna fetch dengan had masa 2.5 saat supaya cepat jatuh ke fon offline jika tiada internet
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error("Gagal muat turun fon");
+                const arrayBuffer = await response.arrayBuffer();
+                const font = opentype.parse(arrayBuffer);
+
+                fontCache[fontName] = font;
+                currentFont = font;
+                statusEl.textContent = navigator.onLine ? "Font Aktif" : "Font Cache (Offline)";
+                return font;
+            } catch (e) {
+                console.warn(`Mod offline aktif: menggunakan fon terbina dalam untuk ${fontName}`, e);
+                statusEl.textContent = "Offline Aktif";
+                currentFont = builtInOfflineFont;
+                return currentFont;
+            }
+        }
+
+        // ============================================================================
+        // 4. THREE.JS SCENE & SMOOTH 256x256MM BUILD PLATE (TOUCH + MOUSE READY)
+        // ============================================================================
+        let scene, camera, renderer, controls;
+        const layerGroups = {
+            base: new THREE.Group(),
+            middle: new THREE.Group(),
+            text: new THREE.Group()
+        };
+
+        function initThreeJS() {
+            const container = document.getElementById('canvasContainer');
+            scene = new THREE.Scene();
+            updateSceneBackground();
+
+            camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.5, 2000);
+            camera.up.set(0, 0, 1);
+            camera.position.set(0, -210, 180);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.05;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.07;
+            controls.target.set(0, 0, 0);
+            controls.touches = {
+                ONE: THREE.TOUCH.ROTATE,
+                TWO: THREE.TOUCH.DOLLY_PAN
+            };
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+            scene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight1.position.set(120, -140, 220);
+            dirLight1.castShadow = true;
+            dirLight1.shadow.mapSize.width = 2048;
+            dirLight1.shadow.mapSize.height = 2048;
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0xdbeafe, 0.35);
+            dirLight2.position.set(-150, 150, 120);
+            scene.add(dirLight2);
+
+            buildPrinterBed();
+
+            scene.add(layerGroups.base);
+            scene.add(layerGroups.middle);
+            scene.add(layerGroups.text);
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function updateSceneBackground() {
+            if (!scene) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            scene.background = new THREE.Color(isDark ? 0x09090b : 0xdbe2ea);
+        }
+
+        function buildPrinterBed() {
+            const bedGroup = new THREE.Group();
+            const bedSize = 256;
+
+            const plateGeo = new THREE.BoxGeometry(bedSize, bedSize, 2);
+            const plateMat = new THREE.MeshStandardMaterial({
+                color: 0x1e2229,
+                roughness: 0.85,
+                metalness: 0.08
+            });
+            const plateMesh = new THREE.Mesh(plateGeo, plateMat);
+            plateMesh.position.set(0, 0, -1.05);
+            plateMesh.receiveShadow = true;
+            bedGroup.add(plateMesh);
+
+            const edges = new THREE.EdgesGeometry(new THREE.PlaneGeometry(bedSize, bedSize));
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x475569 });
+            const border = new THREE.LineSegments(edges, lineMat);
+            border.position.z = 0.02;
+            bedGroup.add(border);
+
+            const labelCanvas = document.createElement('canvas');
+            labelCanvas.width = 512;
+            labelCanvas.height = 64;
+            const lCtx = labelCanvas.getContext('2d');
+            lCtx.clearRect(0, 0, 512, 64);
+            lCtx.font = '600 22px monospace';
+            lCtx.fillStyle = 'rgba(148, 163, 184, 0.55)';
+            lCtx.textAlign = 'right';
+            lCtx.textBaseline = 'middle';
+            lCtx.fillText('256 × 256 mm', 496, 32);
+
+            const labelTex = new THREE.CanvasTexture(labelCanvas);
+            const labelPlane = new THREE.Mesh(
+                new THREE.PlaneGeometry(64, 8),
+                new THREE.MeshBasicMaterial({ map: labelTex, transparent: true, depthWrite: false })
+            );
+            labelPlane.position.set(bedSize / 2 - 36, -bedSize / 2 + 8, 0.03);
+            bedGroup.add(labelPlane);
+
+            scene.add(bedGroup);
+        }
+
+        function setCameraPreset(preset) {
+            if (!camera || !controls) return;
+            document.querySelectorAll('.cam-btn').forEach(b => {
+                const active = b.dataset.cam === preset;
+                b.className = active
+                    ? "cam-btn px-3 py-1 rounded-full font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 transition"
+                    : "cam-btn px-3 py-1 rounded-full font-medium text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition";
+            });
+
+            if (preset === 'top') {
+                camera.position.set(0, -0.01, 270);
+                controls.target.set(0, 0, 0);
+            } else if (preset === 'front') {
+                camera.position.set(0, -240, 35);
+                controls.target.set(0, 0, 5);
+            } else if (preset === 'fit') {
+                const box = new THREE.Box3();
+                box.expandByObject(layerGroups.base);
+                if (!box.isEmpty()) {
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, 60);
+                    controls.target.copy(center);
+                    camera.position.set(center.x, center.y - maxDim * 1.15, maxDim * 1.05);
+                } else {
+                    camera.position.set(0, -210, 180);
+                    controls.target.set(0, 0, 0);
+                }
+            } else {
+                camera.position.set(0, -210, 180);
+                controls.target.set(0, 0, 0);
+            }
+            controls.update();
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvasContainer');
+            if (!container || !camera || !renderer) return;
+            const w = container.clientWidth || window.innerWidth;
+            const h = container.clientHeight || window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls) controls.update();
+            if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+
+        // ============================================================================
+        // 5. OPENSCAD-EXACT 2D POLYGON, WORD SPACING & ZERO FLOATING AREA ENGINE
+        // ============================================================================
+        const CLIPPER_SCALE = 10000;
+
+        function buildSpacedTextPath(font, renderStr, fontSizePx, wordSpacingMm) {
+            if (!wordSpacingMm || Math.abs(wordSpacingMm) < 0.01) {
+                return font.getPath(renderStr, 0, 0, fontSizePx);
+            }
+            const combined = new opentype.Path();
+            const scale = fontSizePx / font.unitsPerEm;
+            let cursorX = 0;
+
+            for (let i = 0; i < renderStr.length; i++) {
+                const ch = renderStr[i];
+                const glyph = font.charToGlyph(ch);
+                const glyphPath = glyph.getPath(cursorX, 0, fontSizePx);
+                glyphPath.commands.forEach(c => combined.commands.push(c));
+
+                let adv = (glyph.advanceWidth || 0) * scale;
+                if (i < renderStr.length - 1) {
+                    const nextGlyph = font.charToGlyph(renderStr[i + 1]);
+                    adv += font.getKerningValue(glyph, nextGlyph) * scale;
+                }
+                if (ch === ' ') {
+                    adv += wordSpacingMm;
+                }
+                cursorX += adv;
+            }
+            return combined;
+        }
+
+        function textToClipperPaths(font, textStr, fontSize, xShift, yShift, wordSpacingMm = 0) {
+            if (!font || !textStr || textStr.length === 0) return [];
+
+            const renderStr = (font === builtInOfflineFont) ? textStr.toUpperCase() : textStr;
+            const path = buildSpacedTextPath(font, renderStr, fontSize * 1.32, wordSpacingMm);
+
+            const rawPolys = [];
+            let currentPoly = [];
+            let curX = 0, curY = 0;
+
+            const addPoint = (x, y) => {
+                const px = x;
+                const py = -y;
+                if (currentPoly.length > 0) {
+                    const prev = currentPoly[currentPoly.length - 1];
+                    if (Math.hypot(px - prev.x, py - prev.y) < 0.002) return;
+                }
+                currentPoly.push({ x: px, y: py });
+            };
+
+            path.commands.forEach(cmd => {
+                if (cmd.type === 'M') {
+                    if (currentPoly.length >= 3) rawPolys.push(currentPoly);
+                    currentPoly = [];
+                    curX = cmd.x; curY = cmd.y;
+                    addPoint(curX, curY);
+                } else if (cmd.type === 'L') {
+                    curX = cmd.x; curY = cmd.y;
+                    addPoint(curX, curY);
+                } else if (cmd.type === 'Q') {
+                    const steps = 28;
+                    for (let i = 1; i <= steps; i++) {
+                        const t = i / steps;
+                        const mt = 1 - t;
+                        const x = mt * mt * curX + 2 * mt * t * cmd.x1 + t * t * cmd.x;
+                        const y = mt * mt * curY + 2 * mt * t * cmd.y1 + t * t * cmd.y;
+                        addPoint(x, y);
+                    }
+                    curX = cmd.x; curY = cmd.y;
+                } else if (cmd.type === 'C') {
+                    const steps = 36;
+                    for (let i = 1; i <= steps; i++) {
+                        const t = i / steps;
+                        const mt = 1 - t;
+                        const x = mt * mt * mt * curX + 3 * mt * mt * t * cmd.x1 + 3 * mt * t * t * cmd.x2 + t * t * t * cmd.x;
+                        const y = mt * mt * mt * curY + 3 * mt * mt * t * cmd.y1 + 3 * mt * t * t * cmd.y2 + t * t * t * cmd.y;
+                        addPoint(x, y);
+                    }
+                    curX = cmd.x; curY = cmd.y;
+                } else if (cmd.type === 'Z') {
+                    if (currentPoly.length >= 3) rawPolys.push(currentPoly);
+                    currentPoly = [];
+                }
+            });
+            if (currentPoly.length >= 3) rawPolys.push(currentPoly);
+
+            if (rawPolys.length === 0) return [];
+
+            let minY = Infinity, maxY = -Infinity;
+            rawPolys.forEach(poly => {
+                poly.forEach(pt => {
+                    if (pt.y < minY) minY = pt.y;
+                    if (pt.y > maxY) maxY = pt.y;
+                });
+            });
+            const midY = (minY + maxY) / 2;
+
+            const clipperPaths = rawPolys.map(poly => {
+                return poly.map(pt => ({
+                    X: Math.round((pt.x + xShift) * CLIPPER_SCALE),
+                    Y: Math.round(((pt.y - midY) + yShift) * CLIPPER_SCALE)
+                }));
+            });
+
+            const cpr = new ClipperLib.Clipper();
+            cpr.StrictlySimple = true;
+            cpr.AddPaths(clipperPaths, ClipperLib.PolyType.ptSubject, true);
+            const cleaned = new ClipperLib.Paths();
+            cpr.Execute(ClipperLib.ClipType.ctUnion, cleaned, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+
+            return ClipperLib.Clipper.CleanPolygons(cleaned, 0.0015 * CLIPPER_SCALE);
+        }
+
+        function offsetClipperPaths(paths, offsetMm) {
+            if (!paths || paths.length === 0) return [];
+            if (Math.abs(offsetMm) < 0.001) return paths;
+
+            const co = new ClipperLib.ClipperOffset(2.0, 0.002 * CLIPPER_SCALE);
+            co.AddPaths(paths, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
+            const solution = new ClipperLib.Paths();
+            co.Execute(solution, offsetMm * CLIPPER_SCALE);
+
+            const cpr = new ClipperLib.Clipper();
+            cpr.StrictlySimple = true;
+            cpr.AddPaths(solution, ClipperLib.PolyType.ptSubject, true);
+            const unified = new ClipperLib.Paths();
+            cpr.Execute(ClipperLib.ClipType.ctUnion, unified, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+
+            return ClipperLib.Clipper.CleanPolygons(unified, 0.0015 * CLIPPER_SCALE);
+        }
+
+        function unionClipperPaths(pathsA, pathsB) {
+            const cpr = new ClipperLib.Clipper();
+            cpr.StrictlySimple = true;
+            if (pathsA && pathsA.length > 0) cpr.AddPaths(pathsA, ClipperLib.PolyType.ptSubject, true);
+            if (pathsB && pathsB.length > 0) cpr.AddPaths(pathsB, ClipperLib.PolyType.ptClip, true);
+            const solution = new ClipperLib.Paths();
+            cpr.Execute(ClipperLib.ClipType.ctUnion, solution, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+            return ClipperLib.Clipper.CleanPolygons(solution, 0.002 * CLIPPER_SCALE);
+        }
+
+        function diffClipperPaths(subjectPaths, clipPaths) {
+            const cpr = new ClipperLib.Clipper();
+            cpr.StrictlySimple = true;
+            if (subjectPaths && subjectPaths.length > 0) cpr.AddPaths(subjectPaths, ClipperLib.PolyType.ptSubject, true);
+            if (clipPaths && clipPaths.length > 0) cpr.AddPaths(clipPaths, ClipperLib.PolyType.ptClip, true);
+            const solution = new ClipperLib.Paths();
+            cpr.Execute(ClipperLib.ClipType.ctDifference, solution, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+            return solution;
+        }
+
+        function bridgeDisconnectedBaseIslands(basePaths) {
+            if (!basePaths || basePaths.length <= 1) return basePaths;
+
+            const cpr = new ClipperLib.Clipper();
+            cpr.StrictlySimple = true;
+            cpr.AddPaths(basePaths, ClipperLib.PolyType.ptSubject, true);
+            const polyTree = new ClipperLib.PolyTree();
+            cpr.Execute(ClipperLib.ClipType.ctUnion, polyTree, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+
+            const outerNodes = polyTree.Childs().filter(n => !n.IsHole() && n.Contour().length >= 3);
+            if (outerNodes.length <= 1) return basePaths;
+
+            const islands = outerNodes.map(n => {
+                const contour = n.Contour();
+                return {
+                    contour,
+                    area: Math.abs(ClipperLib.Clipper.Area(contour))
+                };
+            }).sort((a, b) => b.area - a.area);
+
+            const connected = [islands[0].contour];
+            const remaining = islands.slice(1).map(i => i.contour);
+            const bridges = [];
+            const halfBridge = Math.round(1.35 * CLIPPER_SCALE);
+
+            while (remaining.length > 0) {
+                let bestDistSq = Infinity;
+                let bestPtA = null;
+                let bestPtB = null;
+                let bestRemIdx = 0;
+
+                for (let r = 0; r < remaining.length; r++) {
+                    const cand = remaining[r];
+                    for (let c = 0; c < connected.length; c++) {
+                        const anchor = connected[c];
+                        for (let i = 0; i < cand.length; i += 2) {
+                            const p1 = cand[i];
+                            for (let j = 0; j < anchor.length; j += 2) {
+                                const p2 = anchor[j];
+                                const dx = p1.X - p2.X;
+                                const dy = p1.Y - p2.Y;
+                                const dSq = dx * dx + dy * dy;
+                                if (dSq < bestDistSq) {
+                                    bestDistSq = dSq;
+                                    bestPtA = p1;
+                                    bestPtB = p2;
+                                    bestRemIdx = r;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (bestPtA && bestPtB) {
+                    const dx = bestPtB.X - bestPtA.X;
+                    const dy = bestPtB.Y - bestPtA.Y;
+                    const len = Math.hypot(dx, dy);
+                    if (len > 0) {
+                        const nx = (-dy / len) * halfBridge;
+                        const ny = (dx / len) * halfBridge;
+                        const extX = (dx / len) * (0.4 * CLIPPER_SCALE);
+                        const extY = (dy / len) * (0.4 * CLIPPER_SCALE);
+
+                        bridges.push([
+                            { X: Math.round(bestPtA.X - extX + nx), Y: Math.round(bestPtA.Y - extY + ny) },
+                            { X: Math.round(bestPtB.X + extX + nx), Y: Math.round(bestPtB.Y + extY + ny) },
+                            { X: Math.round(bestPtB.X + extX - nx), Y: Math.round(bestPtB.Y + extY - ny) },
+                            { X: Math.round(bestPtA.X - extX - nx), Y: Math.round(bestPtA.Y - extY - ny) }
+                        ]);
+                    }
+                }
+
+                connected.push(remaining[bestRemIdx]);
+                remaining.splice(bestRemIdx, 1);
+            }
+
+            if (bridges.length === 0) return basePaths;
+            return unionClipperPaths(basePaths, bridges);
+        }
+
+        function createCircleClipperPath(cx, cy, diameter, segments = 96) {
+            const r = diameter / 2;
+            const path = [];
+            for (let i = 0; i < segments; i++) {
+                const theta = (i / segments) * Math.PI * 2;
+                path.push({
+                    X: Math.round((cx + r * Math.cos(theta)) * CLIPPER_SCALE),
+                    Y: Math.round((cy + r * Math.sin(theta)) * CLIPPER_SCALE)
+                });
+            }
+            return path;
+        }
+
+        function convexHullClipperPath(points) {
+            if (points.length <= 3) return points;
+            const pts = points.slice().sort((a, b) => a.X === b.X ? a.Y - b.Y : a.X - b.X);
+            const cross = (o, a, b) => (a.X - o.X) * (b.Y - o.Y) - (a.Y - o.Y) * (b.X - o.X);
+
+            const lower = [];
+            for (let p of pts) {
+                while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+                    lower.pop();
+                }
+                lower.push(p);
+            }
+            const upper = [];
+            for (let i = pts.length - 1; i >= 0; i--) {
+                const p = pts[i];
+                while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+                    upper.pop();
+                }
+                upper.push(p);
+            }
+            upper.pop();
+            lower.pop();
+            return lower.concat(upper);
+        }
+
+        function buildKeyRingClipperPaths() {
+            if (!params.Key_ring) return [];
+
+            const auto_x_pos = params.Overall_Shift_X - (params.Ring_diameter_outer / 2) - params.Base_offset + params.Ring_Offset;
+            const cy = params.Key_ring_fine_y;
+
+            const cMain = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_outer, 96);
+            const cTop = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy + params.Ring_Width_Base / 2, 1.0, 36);
+            const cBot = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy - params.Ring_Width_Base / 2, 1.0, 36);
+
+            const hullPath = convexHullClipperPath([...cMain, ...cTop, ...cBot]);
+            const innerHole = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_inner, 96);
+
+            return diffClipperPaths([hullPath], [innerHole]);
+        }
+
+        function clipperPathsToThreeShapes(paths) {
+            if (!paths || paths.length === 0) return [];
+
+            const minAreaScaled = 0.015 * CLIPPER_SCALE * CLIPPER_SCALE;
+            const validPaths = ClipperLib.Clipper.CleanPolygons(paths, 0.002 * CLIPPER_SCALE)
+                .filter(p => p.length >= 3 && Math.abs(ClipperLib.Clipper.Area(p)) >= minAreaScaled);
+
+            if (validPaths.length === 0) return [];
+
+            const cpr = new ClipperLib.Clipper();
+            cpr.StrictlySimple = true;
+            cpr.AddPaths(validPaths, ClipperLib.PolyType.ptSubject, true);
+            const polyTree = new ClipperLib.PolyTree();
+            cpr.Execute(ClipperLib.ClipType.ctUnion, polyTree, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+
+            const shapes = [];
+
+            function processNode(outerNode) {
+                if (!outerNode.IsHole()) {
+                    const contour = outerNode.Contour();
+                    if (contour.length >= 3) {
+                        const shape = new THREE.Shape();
+                        contour.forEach((pt, idx) => {
+                            const x = pt.X / CLIPPER_SCALE;
+                            const y = pt.Y / CLIPPER_SCALE;
+                            if (idx === 0) shape.moveTo(x, y);
+                            else shape.lineTo(x, y);
+                        });
+                        shape.closePath();
+
+                        const children = outerNode.Childs();
+                        children.forEach(child => {
+                            if (child.IsHole()) {
+                                const holeContour = child.Contour();
+                                if (holeContour.length >= 3) {
+                                    const holePath = new THREE.Path();
+                                    holeContour.forEach((pt, idx) => {
+                                        const x = pt.X / CLIPPER_SCALE;
+                                        const y = pt.Y / CLIPPER_SCALE;
+                                        if (idx === 0) holePath.moveTo(x, y);
+                                        else holePath.lineTo(x, y);
+                                    });
+                                    holePath.closePath();
+                                    shape.holes.push(holePath);
+                                }
+                                child.Childs().forEach(grandChild => processNode(grandChild));
+                            }
+                        });
+
+                        shapes.push(shape);
+                    }
+                }
+            }
+
+            polyTree.Childs().forEach(node => processNode(node));
+            return shapes;
+        }
+
+        function createExtrudedLayerMesh(clipperPaths, heightMm, zPos, material, edgeColorHex) {
+            const shapes = clipperPathsToThreeShapes(clipperPaths);
+            if (shapes.length === 0 || heightMm <= 0) return null;
+
+            const extrudeSettings = {
+                depth: heightMm,
+                bevelEnabled: false,
+                curveSegments: 32
+            };
+            const rawGeometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
+            const geometry = weldGeometryVertices(rawGeometry);
+            rawGeometry.dispose();
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.z = zPos;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            const edgesGeo = new THREE.EdgesGeometry(geometry, 28);
+            const edgesMat = new THREE.LineBasicMaterial({
+                color: edgeColorHex,
+                transparent: true,
+                opacity: 0.35
+            });
+            const edgeLines = new THREE.LineSegments(edgesGeo, edgesMat);
+            mesh.add(edgeLines);
+
+            return mesh;
+        }
+
+        function weldGeometryVertices(geometry, tolerance = 1e-4) {
+            const pos = geometry.attributes.position;
+            if (!pos) return geometry;
+
+            const invTol = 1 / tolerance;
+            const vertexMap = new Map();
+            const uniquePositions = [];
+            const indices = [];
+
+            const getVertexIndex = (x, y, z) => {
+                const key = `${Math.round(x * invTol)}_${Math.round(y * invTol)}_${Math.round(z * invTol)}`;
+                let idx = vertexMap.get(key);
+                if (idx === undefined) {
+                    idx = uniquePositions.length / 3;
+                    uniquePositions.push(x, y, z);
+                    vertexMap.set(key, idx);
+                }
+                return idx;
+            };
+
+            const triCount = pos.count / 3;
+            for (let t = 0; t < triCount; t++) {
+                const i0 = t * 3;
+                const v0 = getVertexIndex(pos.getX(i0), pos.getY(i0), pos.getZ(i0));
+                const v1 = getVertexIndex(pos.getX(i0 + 1), pos.getY(i0 + 1), pos.getZ(i0 + 1));
+                const v2 = getVertexIndex(pos.getX(i0 + 2), pos.getY(i0 + 2), pos.getZ(i0 + 2));
+
+                if (v0 !== v1 && v1 !== v2 && v0 !== v2) {
+                    indices.push(v0, v1, v2);
+                }
+            }
+
+            const welded = new THREE.BufferGeometry();
+            welded.setAttribute('position', new THREE.Float32BufferAttribute(uniquePositions, 3));
+            welded.setIndex(indices);
+            welded.computeVertexNormals();
+            return welded;
+        }
+
+        // ============================================================================
+        // 6. FULL 10-TAG ASSEMBLY BUILDER
+        // ============================================================================
+        function disposeGroup(group) {
+            while (group.children.length > 0) {
+                const obj = group.children[0];
+                obj.traverse(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material && child.isLineSegments) child.material.dispose();
+                });
+                group.remove(obj);
+            }
+        }
+
+        function rebuild3DModels() {
+            disposeGroup(layerGroups.base);
+            disposeGroup(layerGroups.middle);
+            disposeGroup(layerGroups.text);
+
+            if (!currentFont) return;
+
+            const baseMat = new THREE.MeshStandardMaterial({
+                color: COLOR_MAP[params.Base_color] || "#FFFFFF",
+                roughness: 0.38,
+                metalness: 0.04
+            });
+            const middleMat = new THREE.MeshStandardMaterial({
+                color: COLOR_MAP[params.Middle_color] || "#000000",
+                roughness: 0.38,
+                metalness: 0.04
+            });
+            const textMat = new THREE.MeshStandardMaterial({
+                color: COLOR_MAP[params.Text_color] || "#FF0000",
+                roughness: 0.32,
+                metalness: 0.04
+            });
+
+            const getEdgeTint = (colorName) => (colorName === 'black' ? 0x64748b : 0x0f172a);
+            const keyRing2D = buildKeyRingClipperPaths();
+            const is3Layer = params.Layer_Mode === 3;
+            const activeMiddleThickness = is3Layer ? params.Middle_thickness : 0;
+
+            let activeTagCount = 0;
+
+            for (let i = 1; i <= 10; i++) {
+                const l1 = (params[`Name_${i}_Line_1`] || "").trim();
+                const l2 = (params[`Name_${i}_Line_2`] || "").trim();
+
+                if (l1.length === 0 && l2.length === 0) continue;
+                activeTagCount++;
+
+                const colIdx = i <= 5 ? 0 : 1;
+                const rowIdx = i <= 5 ? (i - 1) : (i - 6);
+                const posX = params.Bed_Start_X + (colIdx * params.Column_Gap_X);
+                const posY = params.Bed_Start_Y + (rowIdx * params.Tag_Gap_Y);
+
+                const isLine2Empty = l2.length === 0;
+                const line1Y = isLine2Empty ? 0 : (params.Text_size / 2) + (params.Line_Spacing / 2);
+                const line2Y = isLine2Empty ? 0 : -(params.Text_size / 2) - (params.Line_Spacing / 2);
+
+                const pathsL1 = textToClipperPaths(currentFont, l1, params.Text_size, params.Overall_Shift_X + params.Line_1_Shift_X, line1Y, params.Word_Spacing);
+                const pathsL2 = textToClipperPaths(currentFont, l2, params.Text_size, params.Overall_Shift_X + params.Line_2_Shift_X, line2Y, params.Word_Spacing);
+
+                const text2D = unionClipperPaths(pathsL1, pathsL2);
+
+                let middle2D = [];
+                if (is3Layer) {
+                    const midL1 = offsetClipperPaths(pathsL1, params.Middle_offset);
+                    const midL2 = offsetClipperPaths(pathsL2, params.Middle_offset);
+                    middle2D = unionClipperPaths(midL1, midL2);
+                }
+
+                const baseL1 = offsetClipperPaths(pathsL1, params.Base_offset);
+                const baseL2 = offsetClipperPaths(pathsL2, params.Base_offset);
+                let base2D = unionClipperPaths(baseL1, baseL2);
+                if (params.Key_ring && keyRing2D.length > 0) {
+                    base2D = unionClipperPaths(base2D, keyRing2D);
+                }
+
+                if (params.Auto_Bridge_Base) {
+                    base2D = bridgeDisconnectedBaseIslands(base2D);
+                }
+
+                const meshBase = createExtrudedLayerMesh(base2D, params.Base_thickness, 0, baseMat, getEdgeTint(params.Base_color));
+                if (meshBase) {
+                    meshBase.position.set(posX, posY, 0);
+                    layerGroups.base.add(meshBase);
+                }
+
+                if (is3Layer) {
+                    const meshMiddle = createExtrudedLayerMesh(middle2D, activeMiddleThickness, params.Base_thickness, middleMat, getEdgeTint(params.Middle_color));
+                    if (meshMiddle) {
+                        meshMiddle.position.set(posX, posY, params.Base_thickness);
+                        layerGroups.middle.add(meshMiddle);
+                    }
+                }
+
+                const textZPos = params.Base_thickness + activeMiddleThickness;
+                const meshText = createExtrudedLayerMesh(text2D, params.Text_thickness, textZPos, textMat, getEdgeTint(params.Text_color));
+                if (meshText) {
+                    meshText.position.set(posX, posY, textZPos);
+                    layerGroups.text.add(meshText);
+                }
+            }
+
+            const totalHeight = (params.Base_thickness + activeMiddleThickness + params.Text_thickness).toFixed(1);
+            document.getElementById('statsBadge').textContent = `${activeTagCount} Tag (${params.Layer_Mode}-Layer) • Tinggi: ${totalHeight}mm`;
+        }
+
+        // ============================================================================
+        // 7. STL & 3MF EXPORT FUNCTIONS
+        // ============================================================================
+        function triggerDownload(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function stlResultToUint8Array(stlResult) {
+            if (stlResult instanceof DataView) return new Uint8Array(stlResult.buffer, stlResult.byteOffset, stlResult.byteLength);
+            if (stlResult instanceof ArrayBuffer) return new Uint8Array(stlResult);
+            if (ArrayBuffer.isView(stlResult)) return new Uint8Array(stlResult.buffer, stlResult.byteOffset, stlResult.byteLength);
+            return new TextEncoder().encode(String(stlResult));
+        }
+
+        function extractGroupMeshFor3MF(group) {
+            group.updateMatrixWorld(true);
+            const vertices = [];
+            const triangles = [];
+            const vertexMap = new Map();
+            const invTol = 10000;
+
+            const getWeldedVertexIndex = (x, y, z) => {
+                const key = `${Math.round(x * invTol)}_${Math.round(y * invTol)}_${Math.round(z * invTol)}`;
+                let idx = vertexMap.get(key);
+                if (idx === undefined) {
+                    idx = vertices.length;
+                    vertices.push(`${x.toFixed(4)} ${y.toFixed(4)} ${z.toFixed(4)}`);
+                    vertexMap.set(key, idx);
+                }
+                return idx;
+            };
+
+            group.traverse((child) => {
+                if (!child.isMesh || !child.geometry) return;
+                const geom = child.geometry;
+                const pos = geom.attributes.position;
+                if (!pos) return;
+
+                const vA = new THREE.Vector3();
+                const vB = new THREE.Vector3();
+                const vC = new THREE.Vector3();
+
+                const pushTri = (a, b, c) => {
+                    vA.fromBufferAttribute(pos, a).applyMatrix4(child.matrixWorld);
+                    vB.fromBufferAttribute(pos, b).applyMatrix4(child.matrixWorld);
+                    vC.fromBufferAttribute(pos, c).applyMatrix4(child.matrixWorld);
+
+                    const idx0 = getWeldedVertexIndex(vA.x, vA.y, vA.z);
+                    const idx1 = getWeldedVertexIndex(vB.x, vB.y, vB.z);
+                    const idx2 = getWeldedVertexIndex(vC.x, vC.y, vC.z);
+
+                    if (idx0 !== idx1 && idx1 !== idx2 && idx0 !== idx2) {
+                        triangles.push(`${idx0} ${idx1} ${idx2}`);
+                    }
+                };
+
+                if (geom.index) {
+                    const idx = geom.index;
+                    for (let i = 0; i < idx.count; i += 3) {
+                        pushTri(idx.getX(i), idx.getX(i + 1), idx.getX(i + 2));
+                    }
+                } else {
+                    for (let i = 0; i < pos.count; i += 3) {
+                        pushTri(i, i + 1, i + 2);
+                    }
+                }
+            });
+
+            return { vertices, triangles };
+        }
+
+        async function exportSingle3MF() {
+            if (layerGroups.base.children.length === 0) {
+                showToast('Sila masukkan sekurang-kurangnya 1 nama dahulu!');
+                return;
+            }
+
+            setStatus('Menjana 1 fail lengkap (.3MF)...', true);
+
+            const prevVis = [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible];
+            layerGroups.base.visible = true;
+            layerGroups.middle.visible = true;
+            layerGroups.text.visible = true;
+
+            const is3Layer = params.Layer_Mode === 3;
+            const layersData = [
+                { id: 1, name: `1_Base_${params.Base_color}`, color: COLOR_MAP[params.Base_color] || "#FFFFFF", mesh: extractGroupMeshFor3MF(layerGroups.base) },
+                ...(is3Layer ? [{ id: 2, name: `2_Middle_${params.Middle_color}`, color: COLOR_MAP[params.Middle_color] || "#000000", mesh: extractGroupMeshFor3MF(layerGroups.middle) }] : []),
+                { id: is3Layer ? 3 : 2, name: `${is3Layer ? '3' : '2'}_Text_${params.Text_color}`, color: COLOR_MAP[params.Text_color] || "#FF0000", mesh: extractGroupMeshFor3MF(layerGroups.text) }
+            ].filter(l => l.mesh.triangles.length > 0);
+
+            [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible] = prevVis;
+
+            let materialsXml = `<basematerials id="100">\n`;
+            layersData.forEach((layer) => {
+                materialsXml += `      <base name="${layer.name}" displaycolor="${layer.color}FF" />\n`;
+            });
+            materialsXml += `    </basematerials>`;
+
+            let objectsXml = "";
+            let componentsXml = "";
+
+            layersData.forEach((layer, idx) => {
+                const vXml = layer.mesh.vertices.map(v => {
+                    const [x, y, z] = v.split(' ');
+                    return `          <vertex x="${x}" y="${y}" z="${z}" />`;
+                }).join('\n');
+
+                const tXml = layer.mesh.triangles.map(t => {
+                    const [v1, v2, v3] = t.split(' ');
+                    return `          <triangle v1="${v1}" v2="${v2}" v3="${v3}" pid="100" p1="${idx}" />`;
+                }).join('\n');
+
+                objectsXml += `    <object id="${layer.id}" name="${layer.name}" type="model" pid="100" pindex="${idx}">
+      <mesh>
+        <vertices>
+${vXml}
+        </vertices>
+        <triangles>
+${tXml}
+        </triangles>
+      </mesh>
+    </object>\n`;
+
+                componentsXml += `        <component objectid="${layer.id}" />\n`;
+            });
+
+            const assemblyId = 50;
+            objectsXml += `    <object id="${assemblyId}" name="Keychain_Assembly_${params.Layer_Mode}Layers" type="model">
+      <components>
+${componentsXml}      </components>
+    </object>\n`;
+
+            const modelXml = `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+  <resources>
+    ${materialsXml}
+${objectsXml}  </resources>
+  <build>
+    <item objectid="${assemblyId}" />
+  </build>
+</model>`;
+
+            const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
+  <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" />
+</Types>`;
+
+            const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+</Relationships>`;
+
+            const zip = new JSZip();
+            zip.file("[Content_Types].xml", contentTypesXml);
+            zip.file("_rels/.rels", relsXml);
+            zip.file("3D/3dmodel.model", modelXml);
+
+            const blob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.ms-package.3dmanufacturing-3dmodel+xml" });
+            const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
+            triggerDownload(blob, `${tagSample}_${params.Layer_Mode}Layers.3mf`);
+
+            setStatus(getReadyStatusLabel(), false);
+            showToast(`1 Fail lengkap (.3MF) dengan ${params.Layer_Mode} warna siap dimuat turun!`);
+        }
+
+        async function exportThreeLayerZip() {
+            if (layerGroups.base.children.length === 0) {
+                showToast('Sila masukkan sekurang-kurangnya 1 nama dahulu!');
+                return;
+            }
+
+            const is3Layer = params.Layer_Mode === 3;
+            setStatus(`Menjana fail ${params.Layer_Mode}-Layer STL ZIP...`, true);
+            const exporter = new THREE.STLExporter();
+            const zip = new JSZip();
+
+            const prevVis = [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible];
+            layerGroups.base.visible = true;
+            layerGroups.middle.visible = is3Layer;
+            layerGroups.text.visible = true;
+
+            const stlBase = stlResultToUint8Array(exporter.parse(layerGroups.base, { binary: true }));
+            const stlText = stlResultToUint8Array(exporter.parse(layerGroups.text, { binary: true }));
+
+            zip.file(`1_Base_Layer_(${params.Base_color}).stl`, stlBase);
+            if (is3Layer) {
+                const stlMiddle = stlResultToUint8Array(exporter.parse(layerGroups.middle, { binary: true }));
+                zip.file(`2_Middle_Layer_(${params.Middle_color}).stl`, stlMiddle);
+                zip.file(`3_Text_Layer_(${params.Text_color}).stl`, stlText);
+            } else {
+                zip.file(`2_Text_Layer_(${params.Text_color}).stl`, stlText);
+            }
+
+            [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible] = prevVis;
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
+            triggerDownload(content, `${tagSample}_${params.Layer_Mode}Layers_BambuStudio.zip`);
+
+            setStatus(getReadyStatusLabel(), false);
+            showToast(`Berjaya! Seret semua ${params.Layer_Mode} STL serentak ke Bambu Studio / OrcaSlicer.`);
+        }
+
+        function exportCombinedSTL() {
+            if (layerGroups.base.children.length === 0) {
+                showToast('Sila masukkan sekurang-kurangnya 1 nama dahulu!');
+                return;
+            }
+
+            const exporter = new THREE.STLExporter();
+            const combinedGroup = new THREE.Group();
+            combinedGroup.add(layerGroups.base.clone());
+            if (params.Layer_Mode === 3) {
+                combinedGroup.add(layerGroups.middle.clone());
+            }
+            combinedGroup.add(layerGroups.text.clone());
+
+            const stlBinary = stlResultToUint8Array(exporter.parse(combinedGroup, { binary: true }));
+            const blob = new Blob([stlBinary], { type: 'application/octet-stream' });
+            const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
+            triggerDownload(blob, `${tagSample}_${params.Layer_Mode}Layers_Combined.stl`);
+            showToast('Fail Combined STL berjaya dimuat turun!');
+        }
+
+        // ============================================================================
+        // 8. HELPERS & SERVICE WORKER BOOTSTRAP
+        // ============================================================================
+        function setStatus(text, isBusy) {
+            document.getElementById('statusText').textContent = text;
+            const dot = document.getElementById('statusDot');
+            if (isBusy) {
+                dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-ping";
+            } else {
+                dot.className = navigator.onLine
+                    ? "w-2 h-2 rounded-full bg-bambu-500"
+                    : "w-2 h-2 rounded-full bg-sky-500";
+            }
+        }
+
+        let toastTimeout = null;
+        function showToast(msg) {
+            const toast = document.getElementById('toastMsg');
+            document.getElementById('toastText').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 3400);
+        }
+
+        window.onload = async function () {
+            // Daftar Service Worker untuk sokongan Online + Offline di GitHub Pages
+            if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW info:', err));
+            }
+
+            initLockScreen();
+            initUI();
+            initThreeJS();
+            setStatus('Memuat font Chewy...', true);
+            await ensureFontLoaded(params.Font_choice);
+            rebuild3DModels();
+            setStatus(getReadyStatusLabel(), false);
+        };
+    </script>
+</body>
+</html>
