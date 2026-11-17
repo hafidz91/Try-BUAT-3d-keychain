@@ -29,7 +29,7 @@
     <!-- ClipperLib for Exact 2D Polygon Offsetting -->
     <script src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"></script>
     
-    <!-- JSZip for Multi-Color Layer STL Bundling -->
+    <!-- JSZip for Multi-Color Layer STL & 3MF Bundling -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <script>
@@ -1208,7 +1208,6 @@
             statusEl.textContent = "Memuat font...";
             const url = FONT_URLS[fontName] || FONT_URLS["Chewy"];
             try {
-                // Guna fetch dengan had masa 2.5 saat supaya cepat jatuh ke fon offline jika tiada internet
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 2500);
 
@@ -1393,7 +1392,7 @@
         }
 
         // ============================================================================
-        // 5. OPENSCAD-EXACT 2D POLYGON, WORD SPACING & ZERO FLOATING AREA ENGINE
+        // 5. OPTIMIZED 2D POLYGON ENGINE (RINGAN & LICIN UNTUK 3D PRINTING)
         // ============================================================================
         const CLIPPER_SCALE = 10000;
 
@@ -1439,7 +1438,7 @@
                 const py = -y;
                 if (currentPoly.length > 0) {
                     const prev = currentPoly[currentPoly.length - 1];
-                    if (Math.hypot(px - prev.x, py - prev.y) < 0.002) return;
+                    if (Math.hypot(px - prev.x, py - prev.y) < 0.01) return;
                 }
                 currentPoly.push({ x: px, y: py });
             };
@@ -1454,7 +1453,8 @@
                     curX = cmd.x; curY = cmd.y;
                     addPoint(curX, curY);
                 } else if (cmd.type === 'Q') {
-                    const steps = 28;
+                    // Dioptimumkan dari 28 ke 12 segmen (licin untuk nozel 0.4mm & jimat saiz fail)
+                    const steps = 12;
                     for (let i = 1; i <= steps; i++) {
                         const t = i / steps;
                         const mt = 1 - t;
@@ -1464,7 +1464,8 @@
                     }
                     curX = cmd.x; curY = cmd.y;
                 } else if (cmd.type === 'C') {
-                    const steps = 36;
+                    // Dioptimumkan dari 36 ke 16 segmen
+                    const steps = 16;
                     for (let i = 1; i <= steps; i++) {
                         const t = i / steps;
                         const mt = 1 - t;
@@ -1504,14 +1505,15 @@
             const cleaned = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, cleaned, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
 
-            return ClipperLib.Clipper.CleanPolygons(cleaned, 0.0015 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(cleaned, 0.015 * CLIPPER_SCALE);
         }
 
         function offsetClipperPaths(paths, offsetMm) {
             if (!paths || paths.length === 0) return [];
             if (Math.abs(offsetMm) < 0.001) return paths;
 
-            const co = new ClipperLib.ClipperOffset(2.0, 0.002 * CLIPPER_SCALE);
+            // ArcTolerance 0.025mm menghasilkan lengkungan luar bulat tanpa bucu berlebihan
+            const co = new ClipperLib.ClipperOffset(2.0, 0.025 * CLIPPER_SCALE);
             co.AddPaths(paths, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
             const solution = new ClipperLib.Paths();
             co.Execute(solution, offsetMm * CLIPPER_SCALE);
@@ -1522,7 +1524,7 @@
             const unified = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, unified, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
 
-            return ClipperLib.Clipper.CleanPolygons(unified, 0.0015 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(unified, 0.015 * CLIPPER_SCALE);
         }
 
         function unionClipperPaths(pathsA, pathsB) {
@@ -1532,7 +1534,7 @@
             if (pathsB && pathsB.length > 0) cpr.AddPaths(pathsB, ClipperLib.PolyType.ptClip, true);
             const solution = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, solution, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
-            return ClipperLib.Clipper.CleanPolygons(solution, 0.002 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(solution, 0.015 * CLIPPER_SCALE);
         }
 
         function diffClipperPaths(subjectPaths, clipPaths) {
@@ -1625,7 +1627,7 @@
             return unionClipperPaths(basePaths, bridges);
         }
 
-        function createCircleClipperPath(cx, cy, diameter, segments = 96) {
+        function createCircleClipperPath(cx, cy, diameter, segments = 44) {
             const r = diameter / 2;
             const path = [];
             for (let i = 0; i < segments; i++) {
@@ -1669,12 +1671,12 @@
             const auto_x_pos = params.Overall_Shift_X - (params.Ring_diameter_outer / 2) - params.Base_offset + params.Ring_Offset;
             const cy = params.Key_ring_fine_y;
 
-            const cMain = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_outer, 96);
-            const cTop = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy + params.Ring_Width_Base / 2, 1.0, 36);
-            const cBot = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy - params.Ring_Width_Base / 2, 1.0, 36);
+            const cMain = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_outer, 44);
+            const cTop = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy + params.Ring_Width_Base / 2, 1.0, 20);
+            const cBot = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy - params.Ring_Width_Base / 2, 1.0, 20);
 
             const hullPath = convexHullClipperPath([...cMain, ...cTop, ...cBot]);
-            const innerHole = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_inner, 96);
+            const innerHole = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_inner, 44);
 
             return diffClipperPaths([hullPath], [innerHole]);
         }
@@ -1683,7 +1685,7 @@
             if (!paths || paths.length === 0) return [];
 
             const minAreaScaled = 0.015 * CLIPPER_SCALE * CLIPPER_SCALE;
-            const validPaths = ClipperLib.Clipper.CleanPolygons(paths, 0.002 * CLIPPER_SCALE)
+            const validPaths = ClipperLib.Clipper.CleanPolygons(paths, 0.015 * CLIPPER_SCALE)
                 .filter(p => p.length >= 3 && Math.abs(ClipperLib.Clipper.Area(p)) >= minAreaScaled);
 
             if (validPaths.length === 0) return [];
@@ -1744,7 +1746,7 @@
             const extrudeSettings = {
                 depth: heightMm,
                 bevelEnabled: false,
-                curveSegments: 32
+                curveSegments: 12
             };
             const rawGeometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
             const geometry = weldGeometryVertices(rawGeometry);
@@ -1916,7 +1918,7 @@
         }
 
         // ============================================================================
-        // 7. STL & 3MF EXPORT FUNCTIONS
+        // 7. COMPACT STL & 3MF EXPORT FUNCTIONS (DEFLATE COMPRESSION ENABLED)
         // ============================================================================
         function triggerDownload(blob, filename) {
             const url = URL.createObjectURL(blob);
@@ -1941,14 +1943,15 @@
             const vertices = [];
             const triangles = [];
             const vertexMap = new Map();
-            const invTol = 10000;
+            const invTol = 1000;
 
             const getWeldedVertexIndex = (x, y, z) => {
                 const key = `${Math.round(x * invTol)}_${Math.round(y * invTol)}_${Math.round(z * invTol)}`;
                 let idx = vertexMap.get(key);
                 if (idx === undefined) {
                     idx = vertices.length;
-                    vertices.push(`${x.toFixed(4)} ${y.toFixed(4)} ${z.toFixed(4)}`);
+                    // Ketepatan 3 tempat perpuluhan (0.001mm) menjimatkan saiz fail tanpa menjejaskan cetakan
+                    vertices.push(`${Number(x.toFixed(3))} ${Number(y.toFixed(3))} ${Number(z.toFixed(3))}`);
                     vertexMap.set(key, idx);
                 }
                 return idx;
@@ -1999,7 +2002,7 @@
                 return;
             }
 
-            setStatus('Menjana 1 fail lengkap (.3MF)...', true);
+            setStatus('Memampatkan fail ringan (.3MF)...', true);
 
             const prevVis = [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible];
             layerGroups.base.visible = true;
@@ -2017,9 +2020,9 @@
 
             let materialsXml = `<basematerials id="100">\n`;
             layersData.forEach((layer) => {
-                materialsXml += `      <base name="${layer.name}" displaycolor="${layer.color}FF" />\n`;
+                materialsXml += `<base name="${layer.name}" displaycolor="${layer.color}FF" />\n`;
             });
-            materialsXml += `    </basematerials>`;
+            materialsXml += `</basematerials>`;
 
             let objectsXml = "";
             let componentsXml = "";
@@ -2027,53 +2030,53 @@
             layersData.forEach((layer, idx) => {
                 const vXml = layer.mesh.vertices.map(v => {
                     const [x, y, z] = v.split(' ');
-                    return `          <vertex x="${x}" y="${y}" z="${z}" />`;
+                    return `<vertex x="${x}" y="${y}" z="${z}" />`;
                 }).join('\n');
 
                 const tXml = layer.mesh.triangles.map(t => {
                     const [v1, v2, v3] = t.split(' ');
-                    return `          <triangle v1="${v1}" v2="${v2}" v3="${v3}" pid="100" p1="${idx}" />`;
+                    return `<triangle v1="${v1}" v2="${v2}" v3="${v3}" pid="100" p1="${idx}" />`;
                 }).join('\n');
 
-                objectsXml += `    <object id="${layer.id}" name="${layer.name}" type="model" pid="100" pindex="${idx}">
-      <mesh>
-        <vertices>
+                objectsXml += `<object id="${layer.id}" name="${layer.name}" type="model" pid="100" pindex="${idx}">
+<mesh>
+<vertices>
 ${vXml}
-        </vertices>
-        <triangles>
+</vertices>
+<triangles>
 ${tXml}
-        </triangles>
-      </mesh>
-    </object>\n`;
+</triangles>
+</mesh>
+</object>\n`;
 
-                componentsXml += `        <component objectid="${layer.id}" />\n`;
+                componentsXml += `<component objectid="${layer.id}" />\n`;
             });
 
             const assemblyId = 50;
-            objectsXml += `    <object id="${assemblyId}" name="Keychain_Assembly_${params.Layer_Mode}Layers" type="model">
-      <components>
-${componentsXml}      </components>
-    </object>\n`;
+            objectsXml += `<object id="${assemblyId}" name="Keychain_Assembly_${params.Layer_Mode}Layers" type="model">
+<components>
+${componentsXml}</components>
+</object>\n`;
 
             const modelXml = `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
-  <resources>
-    ${materialsXml}
-${objectsXml}  </resources>
-  <build>
-    <item objectid="${assemblyId}" />
-  </build>
+<resources>
+${materialsXml}
+${objectsXml}</resources>
+<build>
+<item objectid="${assemblyId}" />
+</build>
 </model>`;
 
             const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
-  <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" />
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
+<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" />
 </Types>`;
 
             const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+<Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
 </Relationships>`;
 
             const zip = new JSZip();
@@ -2081,12 +2084,19 @@ ${objectsXml}  </resources>
             zip.file("_rels/.rels", relsXml);
             zip.file("3D/3dmodel.model", modelXml);
 
-            const blob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.ms-package.3dmanufacturing-3dmodel+xml" });
+            // Aktifkan mampatan DEFLATE supaya saiz fail .3MF turun ~80%
+            const blob = await zip.generateAsync({
+                type: "blob",
+                mimeType: "application/vnd.ms-package.3dmanufacturing-3dmodel+xml",
+                compression: "DEFLATE",
+                compressionOptions: { level: 9 }
+            });
             const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
             triggerDownload(blob, `${tagSample}_${params.Layer_Mode}Layers.3mf`);
 
             setStatus(getReadyStatusLabel(), false);
-            showToast(`1 Fail lengkap (.3MF) dengan ${params.Layer_Mode} warna siap dimuat turun!`);
+            const sizeKb = Math.round(blob.size / 1024);
+            showToast(`Fail .3MF siap dimuat turun (${sizeKb} KB)!`);
         }
 
         async function exportThreeLayerZip() {
@@ -2119,7 +2129,11 @@ ${objectsXml}  </resources>
 
             [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible] = prevVis;
 
-            const content = await zip.generateAsync({ type: "blob" });
+            const content = await zip.generateAsync({
+                type: "blob",
+                compression: "DEFLATE",
+                compressionOptions: { level: 6 }
+            });
             const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
             triggerDownload(content, `${tagSample}_${params.Layer_Mode}Layers_BambuStudio.zip`);
 
@@ -2175,7 +2189,6 @@ ${objectsXml}  </resources>
         }
 
         window.onload = async function () {
-            // Daftar Service Worker untuk sokongan Online + Offline di GitHub Pages
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW info:', err));
             }
