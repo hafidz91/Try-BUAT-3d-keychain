@@ -7,29 +7,32 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#ffffff">
-    <title>Keychain Parametric Studio — Bentara Setia</title>
+    <title>Keychain 3D Studio Ultra-HD — Bentara Setia</title>
 
-    <!-- Offline-Friendly Self-Contained SVG App Icon & Manifest Setup -->
+    <!-- Ikon SVG Kendiri Untuk Pelayar & Aplikasi Tablet/Desktop -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2300AE42'/%3E%3Cpath d='M32 14L48 23V41L32 50L16 41V23L32 14Z' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M16 23L32 32L48 23M32 32V50' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%2300AE42'/%3E%3Cpath d='M90 38L136 64V116L90 142L44 116V64L90 38Z' fill='none' stroke='white' stroke-width='10' stroke-linejoin='round'/%3E%3Cpath d='M44 64L90 90L136 64M90 90V142' fill='none' stroke='white' stroke-width='10' stroke-linejoin='round'/%3E%3C/svg%3E">
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Three.js & OrbitControls & STLExporter -->
+    <!-- Three.js, OrbitControls & STLExporter -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
     
-    <!-- OpenType.js for Vector Glyph Extraction -->
+    <!-- OpenType.js untuk Pengekstrakan Vektor Glif Fon -->
     <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
     
-    <!-- ClipperLib for Exact 2D Polygon Offsetting -->
+    <!-- ClipperLib untuk Offset Poligon 2D Ultra-Halus -->
     <script src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"></script>
     
-    <!-- JSZip for Multi-Color Layer STL & 3MF Bundling -->
+    <!-- JSZip untuk Pembungkusan .3MF & .ZIP Berbilang Lapisan -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <script>
@@ -52,7 +55,7 @@
                         }
                     }
                 }
-            }
+            };
         }
     </script>
 
@@ -91,7 +94,7 @@
 </head>
 <body class="bg-slate-200 dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 font-sans h-[100dvh] w-screen overflow-hidden flex flex-col select-none antialiased">
 
-    <!-- LOCK SCREEN (PASSWORD: 1234) -->
+    <!-- SKRIN KUNCI KATA LALUAN (MEDAN KOSONG SEPENUHNYA, TIADA PEMBAYANG) -->
     <div id="lockScreen" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4">
         <div id="lockCard" class="w-full max-w-sm rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl p-6 space-y-5">
             <div class="flex flex-col items-center text-center space-y-2">
@@ -104,16 +107,28 @@
                     <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-bambu-500/12 text-bambu-600 dark:text-bambu-400 border border-bambu-500/25 mb-1">
                         Officially Made by Bentara Setia
                     </span>
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Keychain 3D Studio</h2>
-                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Sila masukkan kata laluan untuk mengakses studio</p>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Keychain 3D Studio Ultra-HD</h2>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Sila masukkan kata laluan akses untuk membuka studio</p>
                 </div>
             </div>
 
-            <form id="unlockForm" class="space-y-3.5">
+            <form id="unlockForm" autocomplete="off" class="space-y-3.5">
                 <div>
                     <label for="passwordInput" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Kata Laluan Akses</label>
                     <div class="relative">
-                        <input type="password" id="passwordInput" inputmode="numeric" autocomplete="off" placeholder="Masukkan kata laluan..." class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 font-mono text-sm font-semibold tracking-widest text-center focus:outline-none focus:border-bambu-500 transition">
+                        <input
+                            type="password"
+                            id="passwordInput"
+                            name="studio_access_pin"
+                            value=""
+                            inputmode="numeric"
+                            autocomplete="new-password"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false"
+                            placeholder="••••"
+                            class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 font-mono text-sm font-semibold tracking-widest text-center focus:outline-none focus:border-bambu-500 transition"
+                        >
                         <button type="button" id="togglePwdVisBtn" title="Tunjuk / Sembunyi Kata Laluan" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 p-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </button>
@@ -129,7 +144,7 @@
         </div>
     </div>
 
-    <!-- TOP HEADER BAR -->
+    <!-- BAR HEADER ATAS -->
     <header class="h-14 bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 px-3 sm:px-5 flex items-center justify-between shrink-0 z-20 shadow-2xs">
         <div class="flex items-center gap-2.5 min-w-0">
             <div class="w-8 h-8 rounded-lg bg-bambu-500 flex items-center justify-center text-white font-bold shadow-sm shrink-0">
@@ -139,16 +154,16 @@
             </div>
             <div class="truncate">
                 <div class="flex items-center gap-2">
-                    <h1 class="text-sm sm:text-[15px] font-bold tracking-tight text-slate-900 dark:text-white truncate">Keychain 3D Studio</h1>
+                    <h1 class="text-sm sm:text-[15px] font-bold tracking-tight text-slate-900 dark:text-white truncate">Keychain 3D Studio Ultra-HD</h1>
                     <span class="hidden lg:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-bambu-500/12 text-bambu-600 dark:text-bambu-400 border border-bambu-500/25">
                         Officially Made by Bentara Setia
                     </span>
                 </div>
-                <p class="text-[11px] text-slate-500 dark:text-zinc-400 truncate hidden sm:block">10 Tag Nama • Sedia Online & Offline</p>
+                <p class="text-[11px] text-slate-500 dark:text-zinc-400 truncate hidden sm:block">Penjana Keychain 3D Custom • Sedia Dicetak</p>
             </div>
         </div>
 
-        <!-- Center Pill: 2 Layer / 3 Layer Toggle -->
+        <!-- Penukar Mod 2 Layer / 3 Layer -->
         <div class="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-full border border-slate-200/90 dark:border-zinc-700 shadow-2xs">
             <button type="button" id="mode2LayerBtn" class="px-3 sm:px-3.5 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-current opacity-50"></span>
@@ -160,17 +175,17 @@
             </button>
         </div>
 
-        <!-- Right Controls -->
+        <!-- Kawalan Kanan -->
         <div class="flex items-center gap-1.5 sm:gap-2">
             <button id="lockStudioBtn" title="Kunci Semula Studio" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
             </button>
 
-            <button id="installAppBtn" title="Pasang Sebagai Aplikasi Komputer / Tablet" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-indigo-600 dark:text-indigo-400 transition">
+            <button id="installAppBtn" title="Panduan Penggunaan Offline & Tablet" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-indigo-600 dark:text-indigo-400 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
             </button>
 
-            <button id="themeToggleBtn" title="Tukar Tema Cerah/Gelap" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 transition">
+            <button id="themeToggleBtn" title="Tukar Tema Cerah / Gelap" class="p-2 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 transition">
                 <svg id="sunIcon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
                 <svg id="moonIcon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
             </button>
@@ -180,7 +195,7 @@
                 <span class="hidden md:inline">Reset</span>
             </button>
 
-            <!-- Blue Download Button -->
+            <!-- Butang Muat Turun .3MF / .STL / .ZIP -->
             <div class="relative flex items-center">
                 <button id="export3mfBtn" class="px-3 sm:px-3.5 py-1.5 rounded-l-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
@@ -213,14 +228,14 @@
         </div>
     </header>
 
-    <!-- MAIN SPLIT WORKSPACE -->
+    <!-- RUANG KERJA UTAMA -->
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
 
-        <!-- LEFT / CENTER: 3D VIEWPORT -->
+        <!-- KIRI / TENGAH: PAPARAN PRATONTON 3D -->
         <section class="relative flex-1 h-[44vh] md:h-full bg-slate-200 dark:bg-zinc-950 overflow-hidden">
             <div id="canvasContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
 
-            <!-- Status Pill (Top Left of Viewport) -->
+            <!-- Status & Statistik Atas Kiri -->
             <div class="absolute top-3 left-3 flex flex-wrap items-center gap-2 pointer-events-none">
                 <div id="statusBadge" class="glass-panel bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2 text-xs font-medium">
                     <span id="statusDot" class="w-2 h-2 rounded-full bg-bambu-500"></span>
@@ -231,7 +246,7 @@
                 </div>
             </div>
 
-            <!-- Compact Layer Visibility Card (Top Right of Viewport) -->
+            <!-- Kawalan Keterlihatan Lapisan Atas Kanan -->
             <div class="absolute top-3 right-3 glass-panel bg-white/92 dark:bg-zinc-900/92 border border-slate-200/90 dark:border-zinc-800 p-2 rounded-xl shadow-md flex flex-col gap-1 text-[11px]">
                 <label class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer transition">
                     <input type="checkbox" id="visText" checked class="rounded text-blue-600 focus:ring-0">
@@ -250,7 +265,7 @@
                 </label>
             </div>
 
-            <!-- Camera View Presets -->
+            <!-- Sudut Pandangan Kamera -->
             <div class="absolute bottom-3 left-1/2 -translate-x-1/2 glass-panel bg-white/95 dark:bg-zinc-900/95 border border-slate-200/90 dark:border-zinc-800 px-2 py-1 rounded-full shadow-lg flex items-center gap-1 text-xs whitespace-nowrap">
                 <button data-cam="iso" class="cam-btn px-3 py-1 rounded-full font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 transition">3D Iso</button>
                 <button data-cam="top" class="cam-btn px-3 py-1 rounded-full font-medium text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition">Atas</button>
@@ -259,7 +274,7 @@
             </div>
         </section>
 
-        <!-- RIGHT: PARAMETER CUSTOMIZER SIDEBAR -->
+        <!-- KANAN: PANEL PARAMETER CUSTOMIZER -->
         <aside class="w-full md:w-[410px] lg:w-[460px] xl:w-[480px] h-[56vh] md:h-full bg-slate-50 dark:bg-zinc-900 border-t md:border-t-0 md:border-l border-slate-200 dark:border-zinc-800 flex flex-col shrink-0 z-10">
             
             <div class="px-3.5 py-2.5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900 shrink-0">
@@ -280,7 +295,7 @@
 
             <div id="customizerScroll" class="flex-1 overflow-y-auto p-3 space-y-2.5 select-text">
 
-                <!-- GROUP 1: Left Column Names -->
+                <!-- KUMPULAN 1: Lajur Kiri (Name 1 - 5) -->
                 <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
                     <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
                         <span class="flex items-center gap-2.5">
@@ -292,7 +307,7 @@
                     <div id="leftNamesContainer" class="p-3 space-y-2 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30"></div>
                 </details>
 
-                <!-- GROUP 2: Right Column Names -->
+                <!-- KUMPULAN 2: Lajur Kanan (Name 6 - 10) -->
                 <details class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
                     <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
                         <span class="flex items-center gap-2.5">
@@ -304,7 +319,7 @@
                     <div id="rightNamesContainer" class="p-3 space-y-2 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/30"></div>
                 </details>
 
-                <!-- GROUP 3: Layout & Bed Position -->
+                <!-- KUMPULAN 3: Susun Atur & Kedudukan Atas Plate -->
                 <details class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
                     <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
                         <span class="flex items-center gap-2.5">
@@ -333,7 +348,7 @@
                     </div>
                 </details>
 
-                <!-- GROUP 4: Font & Text Style -->
+                <!-- KUMPULAN 4: Fon & Gaya Teks -->
                 <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
                     <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
                         <span class="flex items-center gap-2.5">
@@ -390,7 +405,7 @@
                     </div>
                 </details>
 
-                <!-- GROUP 5: Thickness & Margins -->
+                <!-- KUMPULAN 5: Ketebalan & Margin -->
                 <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
                     <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
                         <span class="flex items-center gap-2.5">
@@ -429,19 +444,19 @@
                         <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800/50 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/50 transition">
                             <div>
                                 <div class="text-[11px] font-bold text-blue-700 dark:text-blue-400">Auto-Cantum Tapak (Zero Floating Area)</div>
-                                <div class="text-[10px] text-slate-500 dark:text-zinc-400 leading-snug mt-0.5">Cantumkan huruf 'i', 'j', jarak & baris supaya tiada pulau terapung</div>
+                                <div class="text-[10px] text-slate-500 dark:text-zinc-400 leading-snug mt-0.5">Cantumkan titik huruf 'i', 'j', jarak & baris supaya tiada bahagian terapung</div>
                             </div>
                             <input type="checkbox" data-param="Auto_Bridge_Base" class="param-input w-4 h-4 rounded text-blue-600 focus:ring-blue-500 shrink-0">
                         </label>
                     </div>
                 </details>
 
-                <!-- GROUP 6: Key Ring Settings -->
+                <!-- KUMPULAN 6: Tetapan Lubang Key Ring -->
                 <details class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
                     <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
                         <span class="flex items-center gap-2.5">
                             <span class="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center font-mono text-[11px] font-bold">6</span>
-                            Key Ring Settings
+                            Key Ring Settings (128-Segment Ultra-Smooth)
                         </span>
                         <svg class="w-4 h-4 text-slate-400 chevron-icon transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
                     </summary>
@@ -475,7 +490,7 @@
                     </div>
                 </details>
 
-                <!-- GROUP 7: Colors -->
+                <!-- KUMPULAN 7: Warna Filamen -->
                 <details open class="group rounded-xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
                     <summary class="px-3.5 py-2.5 bg-white dark:bg-zinc-900 cursor-pointer flex items-center justify-between font-semibold text-xs text-slate-800 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition">
                         <span class="flex items-center gap-2.5">
@@ -513,7 +528,7 @@
         </aside>
     </main>
 
-    <!-- BULK PASTE MODAL -->
+    <!-- MODAL TAMPAL PUKAL (1-10) -->
     <div id="bulkModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4">
             <div class="flex items-center justify-between">
@@ -533,7 +548,7 @@
         </div>
     </div>
 
-    <!-- INSTALL AS APP (TABLET / DESKTOP) MODAL -->
+    <!-- MODAL PANDUAN OFFLINE & TABLET -->
     <div id="installModal" class="hidden fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
             <div class="flex items-center justify-between">
@@ -541,7 +556,7 @@
                     <span class="w-7 h-7 rounded-lg bg-bambu-500/15 text-bambu-500 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
                     </span>
-                    <h3 class="text-sm font-bold">Pasang Aplikasi Di Tablet & Komputer</h3>
+                    <h3 class="text-sm font-bold">Spesifikasi Ultra-HD & Penggunaan Offline</h3>
                 </div>
                 <button id="closeInstallModalBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -550,18 +565,18 @@
 
             <div class="space-y-3 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-1">
-                    <div class="font-bold text-slate-800 dark:text-white">1. Cara Guna Tanpa Internet (Offline)</div>
-                    <p>Buka pautan web ini <b>sekali sahaja semasa ada internet</b> supaya semua enjin 3D disimpan automatik ke dalam tablet anda. Selepas itu, anda boleh tutup Wi-Fi atau hidupkan <b>Airplane Mode</b> dan aplikasi tetap berjalan lancar!</p>
+                    <div class="font-bold text-slate-800 dark:text-white">1. Enjin Geometri Ultra-HD (3–4 MB)</div>
+                    <p>Lengkungan huruf dipecahkan kepada <b>44 & 56 segmen</b>, kehalusan offset <b>ArcTolerance 0.0025 mm</b>, lubang key ring <b>128 segmen</b>, serta mampatan <b>.3MF Level 2</b> untuk cetakan licin tanpa bucu bersegi.</p>
                 </div>
 
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-1">
-                    <div class="font-bold text-slate-800 dark:text-white">2. Simpan Terus Di Skrin Utama Tablet</div>
-                    <p>Di Safari (iPad) atau Chrome (Android), tekan ikon <b>Share / Menu (⋮)</b> dan pilih <b>"Add to Home Screen"</b> supaya boleh dibuka seperti aplikasi penuh pada bila-bila masa.</p>
+                    <div class="font-bold text-slate-800 dark:text-white">2. Simpan Di Skrin Utama Tablet / PC</div>
+                    <p>Buka fail HTML ini di pelayar web atau pilih <b>"Add to Home Screen"</b> di tablet untuk akses pantas pada bila-bila masa.</p>
                 </div>
 
                 <div class="p-3 rounded-xl bg-bambu-500/10 border border-bambu-500/25 text-bambu-700 dark:text-bambu-300 space-y-1">
-                    <div class="font-bold">3. Fon Offline & Muat Naik Fon Sendiri (.TTF)</div>
-                    <p>Fon <b>Chewy</b> dan <b>Bentara Offline Block</b> sedia digunakan secara offline. Anda juga boleh tekan butang <b>.TTF</b> untuk guna fail fon dari dalam tablet anda.</p>
+                    <div class="font-bold">3. Fon Offline & Muat Naik .TTF/.OTF</div>
+                    <p>Fon <b>Bentara Offline Block</b> sedia terbina secara offline, dan anda juga boleh tekan butang <b>.TTF</b> untuk memuat naik fail fon dari peranti anda.</p>
                 </div>
             </div>
 
@@ -571,7 +586,7 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
+    <!-- NOTIFIKASI TOAST -->
     <div id="toastMsg" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-bambu-500"></span>
         <span id="toastText">Berjaya!</span>
@@ -579,7 +594,7 @@
 
     <script>
         // ============================================================================
-        // 0. LOCK SCREEN AUTHENTICATION (PASSWORD: 1234)
+        // 0. SISTEM KUNCI KATA LALUAN (MEDAN KOSONG SEPENUHNYA)
         // ============================================================================
         const STUDIO_PASSWORD = "1234";
 
@@ -591,6 +606,13 @@
             const lockErrorMsg = document.getElementById('lockErrorMsg');
             const togglePwdVisBtn = document.getElementById('togglePwdVisBtn');
             const lockStudioBtn = document.getElementById('lockStudioBtn');
+
+            // Pastikan medan kata laluan sentiasa dikosongkan semasa halaman dimuatkan
+            passwordInput.value = '';
+            setTimeout(() => {
+                passwordInput.value = '';
+                passwordInput.focus();
+            }, 80);
 
             togglePwdVisBtn.addEventListener('click', () => {
                 passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
@@ -610,7 +632,8 @@
                     lockCard.classList.remove('shake-error');
                     void lockCard.offsetWidth;
                     lockCard.classList.add('shake-error');
-                    passwordInput.select();
+                    passwordInput.value = '';
+                    passwordInput.focus();
                 }
             });
 
@@ -619,14 +642,15 @@
                 passwordInput.type = 'password';
                 lockErrorMsg.classList.add('hidden');
                 lockScreen.classList.remove('hidden');
-                setTimeout(() => passwordInput.focus(), 50);
+                setTimeout(() => {
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }, 60);
             });
-
-            setTimeout(() => passwordInput.focus(), 80);
         }
 
         // ============================================================================
-        // 1. BUILT-IN OFFLINE VECTOR FONT GENERATOR + PARAMETERS & COLOR MAP
+        // 1. PENJANA FON VEKTOR OFFLINE & PARAMETER LALAI
         // ============================================================================
         function createBuiltInOfflineFont() {
             if (typeof opentype === 'undefined') return null;
@@ -791,14 +815,14 @@
             Overall_Shift_X: 0.0,
             Line_1_Shift_X: 0.0,
             Line_2_Shift_X: 0.0,
-            Text_size: 12,
+            Text_size: 11,
             Line_Spacing: 1.0,
             Word_Spacing: 0.0,
-            Base_offset: 2.0,
-            Middle_offset: 1.0,
+            Base_offset: 2.5,
+            Middle_offset: 0.9,
             Base_thickness: 1.5,
             Middle_thickness: 0.8,
-            Text_thickness: 1.2,
+            Text_thickness: 1.3,
             Auto_Bridge_Base: true,
             Key_ring: true,
             Ring_diameter_outer: 7.5,
@@ -817,7 +841,7 @@
         let builtInOfflineFont = null;
 
         // ============================================================================
-        // 2. UI INITIALIZATION, UP/DOWN STEPPER BUTTONS & 2/3-LAYER SWITCHER
+        // 2. INISIALISASI ANTARA MUKA, BUTANG STEPPER & MOD 2 / 3 LAYER
         // ============================================================================
         function enhanceNumberInputsWithUpDownButtons() {
             document.querySelectorAll('input[type="number"].param-input').forEach(input => {
@@ -1038,7 +1062,7 @@
         let rebuildTimer = null;
         function scheduleRebuild(delay = 140) {
             clearTimeout(rebuildTimer);
-            setStatus('Menjana geometri 3D...', true);
+            setStatus('Menjana geometri 3D Ultra-HD...', true);
             rebuildTimer = setTimeout(async () => {
                 await ensureFontLoaded(params.Font_choice);
                 rebuild3DModels();
@@ -1059,7 +1083,7 @@
                 showToast('Tiada internet — Mod Offline automatik diaktifkan');
             });
 
-            // Local Custom Font (.TTF / .OTF) Upload Handler (100% Offline)
+            // Muat naik fail fon lokal (.TTF / .OTF / .WOFF)
             document.getElementById('localFontInput').addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -1193,7 +1217,7 @@
         }
 
         // ============================================================================
-        // 3. HYBRID ONLINE + OFFLINE FONT LOADER (WITH FAST TIMEOUT & CACHE SUPPORT)
+        // 3. PEMUAT FON HIBRID ONLINE + OFFLINE
         // ============================================================================
         async function ensureFontLoaded(fontName) {
             const statusEl = document.getElementById('fontLoadStatus');
@@ -1231,7 +1255,7 @@
         }
 
         // ============================================================================
-        // 4. THREE.JS SCENE & SMOOTH 256x256MM BUILD PLATE (TOUCH + MOUSE READY)
+        // 4. PAPARAN 3D THREE.JS & PLATE 256x256MM
         // ============================================================================
         let scene, camera, renderer, controls;
         const layerGroups = {
@@ -1392,7 +1416,7 @@
         }
 
         // ============================================================================
-        // 5. HIGH-DEFINITION 2D POLYGON ENGINE (TARGET SAIZ FAIL ~1MB - 1.8MB)
+        // 5. ENJIN POLIGON 2D ULTRA-HD (Q=44, C=56, ArcTol=0.0025mm, Ring=128)
         // ============================================================================
         const CLIPPER_SCALE = 10000;
 
@@ -1438,7 +1462,7 @@
                 const py = -y;
                 if (currentPoly.length > 0) {
                     const prev = currentPoly[currentPoly.length - 1];
-                    if (Math.hypot(px - prev.x, py - prev.y) < 0.004) return;
+                    if (Math.hypot(px - prev.x, py - prev.y) < 0.002) return;
                 }
                 currentPoly.push({ x: px, y: py });
             };
@@ -1453,8 +1477,8 @@
                     curX = cmd.x; curY = cmd.y;
                     addPoint(curX, curY);
                 } else if (cmd.type === 'Q') {
-                    // Resolusi tinggi 24 segmen untuk lengkungan huruf yang ultra-halus
-                    const steps = 24;
+                    // Ultra-HD: 44 segmen per lengkungan kuadratik
+                    const steps = 44;
                     for (let i = 1; i <= steps; i++) {
                         const t = i / steps;
                         const mt = 1 - t;
@@ -1464,8 +1488,8 @@
                     }
                     curX = cmd.x; curY = cmd.y;
                 } else if (cmd.type === 'C') {
-                    // Resolusi tinggi 32 segmen
-                    const steps = 32;
+                    // Ultra-HD: 56 segmen per lengkungan kubik
+                    const steps = 56;
                     for (let i = 1; i <= steps; i++) {
                         const t = i / steps;
                         const mt = 1 - t;
@@ -1505,15 +1529,15 @@
             const cleaned = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, cleaned, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
 
-            return ClipperLib.Clipper.CleanPolygons(cleaned, 0.004 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(cleaned, 0.002 * CLIPPER_SCALE);
         }
 
         function offsetClipperPaths(paths, offsetMm) {
             if (!paths || paths.length === 0) return [];
             if (Math.abs(offsetMm) < 0.001) return paths;
 
-            // ArcTolerance halus 0.006mm untuk sempadan luar bulat sempurna
-            const co = new ClipperLib.ClipperOffset(2.0, 0.006 * CLIPPER_SCALE);
+            // ArcTolerance ultra-halus 0.0025mm supaya lapisan tapak & tengah licin tanpa bucu bersegi
+            const co = new ClipperLib.ClipperOffset(2.0, 0.0025 * CLIPPER_SCALE);
             co.AddPaths(paths, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
             const solution = new ClipperLib.Paths();
             co.Execute(solution, offsetMm * CLIPPER_SCALE);
@@ -1524,7 +1548,7 @@
             const unified = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, unified, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
 
-            return ClipperLib.Clipper.CleanPolygons(unified, 0.004 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(unified, 0.002 * CLIPPER_SCALE);
         }
 
         function unionClipperPaths(pathsA, pathsB) {
@@ -1534,7 +1558,7 @@
             if (pathsB && pathsB.length > 0) cpr.AddPaths(pathsB, ClipperLib.PolyType.ptClip, true);
             const solution = new ClipperLib.Paths();
             cpr.Execute(ClipperLib.ClipType.ctUnion, solution, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
-            return ClipperLib.Clipper.CleanPolygons(solution, 0.004 * CLIPPER_SCALE);
+            return ClipperLib.Clipper.CleanPolygons(solution, 0.002 * CLIPPER_SCALE);
         }
 
         function diffClipperPaths(subjectPaths, clipPaths) {
@@ -1627,7 +1651,7 @@
             return unionClipperPaths(basePaths, bridges);
         }
 
-        function createCircleClipperPath(cx, cy, diameter, segments = 84) {
+        function createCircleClipperPath(cx, cy, diameter, segments = 128) {
             const r = diameter / 2;
             const path = [];
             for (let i = 0; i < segments; i++) {
@@ -1671,12 +1695,13 @@
             const auto_x_pos = params.Overall_Shift_X - (params.Ring_diameter_outer / 2) - params.Base_offset + params.Ring_Offset;
             const cy = params.Key_ring_fine_y;
 
-            const cMain = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_outer, 84);
-            const cTop = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy + params.Ring_Width_Base / 2, 1.0, 28);
-            const cBot = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy - params.Ring_Width_Base / 2, 1.0, 28);
+            // 128 segmen untuk lubang dan bingkai luar key ring yang licin sempurna
+            const cMain = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_outer, 128);
+            const cTop = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy + params.Ring_Width_Base / 2, 1.0, 36);
+            const cBot = createCircleClipperPath(auto_x_pos + params.Ring_diameter_outer * 0.7, cy - params.Ring_Width_Base / 2, 1.0, 36);
 
             const hullPath = convexHullClipperPath([...cMain, ...cTop, ...cBot]);
-            const innerHole = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_inner, 84);
+            const innerHole = createCircleClipperPath(auto_x_pos, cy, params.Ring_diameter_inner, 128);
 
             return diffClipperPaths([hullPath], [innerHole]);
         }
@@ -1684,8 +1709,8 @@
         function clipperPathsToThreeShapes(paths) {
             if (!paths || paths.length === 0) return [];
 
-            const minAreaScaled = 0.004 * CLIPPER_SCALE * CLIPPER_SCALE;
-            const validPaths = ClipperLib.Clipper.CleanPolygons(paths, 0.004 * CLIPPER_SCALE)
+            const minAreaScaled = 0.002 * CLIPPER_SCALE * CLIPPER_SCALE;
+            const validPaths = ClipperLib.Clipper.CleanPolygons(paths, 0.002 * CLIPPER_SCALE)
                 .filter(p => p.length >= 3 && Math.abs(ClipperLib.Clipper.Area(p)) >= minAreaScaled);
 
             if (validPaths.length === 0) return [];
@@ -1746,7 +1771,7 @@
             const extrudeSettings = {
                 depth: heightMm,
                 bevelEnabled: false,
-                curveSegments: 24
+                curveSegments: 36
             };
             const rawGeometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
             const geometry = weldGeometryVertices(rawGeometry);
@@ -1809,7 +1834,7 @@
         }
 
         // ============================================================================
-        // 6. FULL 10-TAG ASSEMBLY BUILDER
+        // 6. PEMBINAAN HIMPUNAN 10 TAG KEYCHAIN
         // ============================================================================
         function disposeGroup(group) {
             while (group.children.length > 0) {
@@ -1918,7 +1943,7 @@
         }
 
         // ============================================================================
-        // 7. HIGH-DETAIL STL & 3MF EXPORT FUNCTIONS (SAIZ IDEAL ~1MB - 1.8MB)
+        // 7. EKSPORT .3MF (MAMPATAN LEVEL 2), .STL GABUNGAN & .ZIP BERASINGAN
         // ============================================================================
         function triggerDownload(blob, filename) {
             const url = URL.createObjectURL(blob);
@@ -2001,7 +2026,7 @@
                 return;
             }
 
-            setStatus('Menjana fail .3MF resolusi tinggi...', true);
+            setStatus('Menjana fail .3MF Ultra-HD...', true);
 
             const prevVis = [layerGroups.base.visible, layerGroups.middle.visible, layerGroups.text.visible];
             layerGroups.base.visible = true;
@@ -2083,12 +2108,12 @@ ${objectsXml}</resources>
             zip.file("_rels/.rels", relsXml);
             zip.file("3D/3dmodel.model", modelXml);
 
-            // Tahap mampatan level 3: pantas dan menghasilkan saiz fail ideal sekitar 1MB - 1.8MB
+            // Mampatan .3MF level 2 (~3-4MB untuk 10 keychain serentak)
             const blob = await zip.generateAsync({
                 type: "blob",
                 mimeType: "application/vnd.ms-package.3dmanufacturing-3dmodel+xml",
                 compression: "DEFLATE",
-                compressionOptions: { level: 3 }
+                compressionOptions: { level: 2 }
             });
             const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
             triggerDownload(blob, `${tagSample}_${params.Layer_Mode}Layers.3mf`);
@@ -2097,7 +2122,7 @@ ${objectsXml}</resources>
             const sizeLabel = blob.size >= 1048576
                 ? `${(blob.size / 1048576).toFixed(2)} MB`
                 : `${Math.round(blob.size / 1024)} KB`;
-            showToast(`Fail .3MF siap dimuat turun (${sizeLabel})!`);
+            showToast(`Fail .3MF Ultra-HD siap dimuat turun (${sizeLabel})!`);
         }
 
         async function exportThreeLayerZip() {
@@ -2133,7 +2158,7 @@ ${objectsXml}</resources>
             const content = await zip.generateAsync({
                 type: "blob",
                 compression: "DEFLATE",
-                compressionOptions: { level: 3 }
+                compressionOptions: { level: 2 }
             });
             const tagSample = (params.Name_1_Line_1 || "Keychain").replace(/[^a-zA-Z0-9_-]/g, "_");
             triggerDownload(content, `${tagSample}_${params.Layer_Mode}Layers_BambuStudio.zip`);
@@ -2164,7 +2189,7 @@ ${objectsXml}</resources>
         }
 
         // ============================================================================
-        // 8. HELPERS & SERVICE WORKER BOOTSTRAP
+        // 8. FUNGSI PEMBANTU & PERMULAAN APLIKASI
         // ============================================================================
         function setStatus(text, isBusy) {
             document.getElementById('statusText').textContent = text;
@@ -2190,10 +2215,6 @@ ${objectsXml}</resources>
         }
 
         window.onload = async function () {
-            if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW info:', err));
-            }
-
             initLockScreen();
             initUI();
             initThreeJS();
