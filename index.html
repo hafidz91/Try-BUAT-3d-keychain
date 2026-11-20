@@ -39,7 +39,7 @@
         }
     </script>
 
-    <!-- Gaya @font-face Dinamik (Intervensi 1: Dimuatkan Secara Lazy-Load Sahaja) -->
+    <!-- Gaya @font-face Dinamik (Dimuatkan Secara Lazy-Load Sahaja) -->
     <style id="dynamicFontFaces"></style>
 
     <style>
@@ -63,7 +63,7 @@
             background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
         }
 
-        /* Intervensi 4: Permukaan Separa Legap Pantas GPU Tanpa Backdrop-Blur Berat */
+        /* Permukaan Separa Legap Pantas GPU Tanpa Backdrop-Blur Berat */
         .gpu-card {
             background: rgba(255, 255, 255, 0.98);
             contain: layout style;
@@ -167,7 +167,7 @@
         .shake-error { animation: shakeError 0.35s ease-in-out; }
     </style>
 
-    <!-- SKRIN KUNCI TERASING (TANPA <FORM>, Z-INDEX 10000) -->
+    <!-- SKRIN KUNCI TERASING (Z-INDEX 10000) -->
     <script>
         window.STUDIO_UNLOCKED = false;
         window.STUDIO_INITIALIZED = false;
@@ -272,13 +272,13 @@
                                 type="password"
                                 id="accessPassInput"
                                 value=""
-                                placeholder="Masukkan kata laluan..."
+                                placeholder=""
                                 autocomplete="off"
                                 autocorrect="off"
                                 autocapitalize="off"
                                 spellcheck="false"
                                 onkeydown="if(event.key==='Enter'){event.preventDefault();window.unlockStudio();}"
-                                class="w-full px-4 py-3 pr-11 rounded-full bg-white border-2 border-emerald-500/80 font-mono text-sm font-semibold tracking-wider text-center text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-emerald-500/20 transition"
+                                class="w-full px-4 py-3 pr-11 rounded-full bg-white border-2 border-emerald-500/80 font-mono text-sm font-semibold tracking-wider text-center text-slate-800 focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-emerald-500/20 transition"
                             >
                             <button type="button" onclick="window.togglePassVisibility()" title="Tunjuk / Sembunyi Kata Laluan" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 p-1.5 transition">
                                 <svg id="eyeOpenIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -316,7 +316,7 @@
                             Officially Made by Bentara Setia
                         </span>
                     </div>
-                    <p class="text-[10px] sm:text-[11px] text-indigo-100/90 truncate">Studio Rekaan 3D Berwarna • Eksport .3MF Sedia Slicer</p>
+                    <p class="text-[10px] sm:text-[11px] text-indigo-100/90 truncate">Studio Rekaan 3D Berwarna • Eksport .3MF Sedia Bambu Studio</p>
                 </div>
             </div>
 
@@ -357,33 +357,54 @@
                 <div id="canvasContainer" class="w-full h-full"></div>
 
                 <!-- Lencana Status Atas Kiri -->
-                <div class="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 pointer-events-none z-10">
+                <div class="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 pointer-events-none z-10 pr-36">
                     <div class="gpu-hud px-3 py-1 rounded-full border border-indigo-100 shadow-sm flex items-center gap-2 text-[11px] font-bold text-slate-700">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                         <span id="statusLabel">Sedia • Pratonton 3D Interaktif</span>
+                    </div>
+                    <div class="gpu-hud px-3 py-1 rounded-full border border-indigo-100 shadow-sm font-mono text-[11px] font-bold text-slate-700">
+                        256 × 256 mm
                     </div>
                     <div id="tagSummaryBadge" class="gpu-hud px-3 py-1 rounded-full border border-indigo-100 shadow-sm font-mono text-[11px] font-bold text-indigo-800">
                         1 Tag (3-Layer) • Tinggi: 3.7mm
                     </div>
                 </div>
 
-                <!-- Kad Keterlihatan Lapisan Atas Kanan -->
-                <div class="gpu-hud hidden sm:flex flex-col gap-1.5 absolute top-3 right-3 p-2.5 rounded-2xl border border-slate-200/90 shadow-md z-10 text-xs font-bold text-slate-700">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="visTextCheck" checked class="w-3.5 h-3.5 rounded text-indigo-600">
-                        <span id="visTextSwatch" class="w-2.5 h-2.5 rounded-full border border-slate-300" style="background:#38BDF8;"></span>
-                        <span>3. Text</span>
-                    </label>
-                    <label id="visMiddleRow" class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="visMiddleCheck" checked class="w-3.5 h-3.5 rounded text-indigo-600">
-                        <span id="visMiddleSwatch" class="w-2.5 h-2.5 rounded-full border border-slate-300" style="background:#000000;"></span>
-                        <span>2. Middle</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="visBaseCheck" checked class="w-3.5 h-3.5 rounded text-indigo-600">
-                        <span id="visBaseSwatch" class="w-2.5 h-2.5 rounded-full border border-slate-300" style="background:#FFFFFF;"></span>
-                        <span>1. Base + Ring</span>
-                    </label>
+                <!-- Butang Dropdown Keterlihatan Lapisan Atas Kanan (#layer-hud) -->
+                <div id="layer-hud" class="absolute top-3 right-3 z-20 flex flex-col items-end">
+                    <button type="button" id="layerHudToggleBtn" aria-expanded="false" class="gpu-hud px-3 py-1.5 rounded-full border border-slate-200/95 hover:border-indigo-300 shadow-md flex items-center gap-2 text-[11px] font-extrabold text-slate-700 transition cursor-pointer">
+                        <span class="flex items-center -space-x-1 shrink-0">
+                            <span id="hudDotBase" class="w-2.5 h-2.5 rounded-full border border-slate-300" style="background:#FFFFFF;"></span>
+                            <span id="hudDotMiddle" class="w-2.5 h-2.5 rounded-full border border-white" style="background:#000000;"></span>
+                            <span id="hudDotText" class="w-2.5 h-2.5 rounded-full border border-white" style="background:#38BDF8;"></span>
+                        </span>
+                        <span id="layerHudCountLabel" class="font-mono">Lapisan (3/3)</span>
+                        <svg id="layerHudChevron" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-150 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                        </svg>
+                    </button>
+
+                    <div id="layerHudDropdown" class="hidden gpu-hud mt-1.5 w-44 p-2.5 rounded-2xl border border-slate-200/95 shadow-xl space-y-1.5 text-xs font-bold text-slate-700">
+                        <div class="flex items-center justify-between pb-1.5 mb-0.5 border-b border-slate-100">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Paparan Lapisan</span>
+                            <button type="button" id="showAllLayersBtn" class="text-[10px] font-extrabold text-indigo-600 hover:text-indigo-800 transition">Tunjuk Semua</button>
+                        </div>
+                        <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:text-indigo-700 transition">
+                            <input type="checkbox" id="visTextCheck" checked class="w-3.5 h-3.5 rounded text-indigo-600">
+                            <span id="visTextSwatch" class="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0" style="background:#38BDF8;"></span>
+                            <span class="truncate">3. Text</span>
+                        </label>
+                        <label id="visMiddleRow" class="flex items-center gap-2 py-0.5 cursor-pointer hover:text-indigo-700 transition">
+                            <input type="checkbox" id="visMiddleCheck" checked class="w-3.5 h-3.5 rounded text-indigo-600">
+                            <span id="visMiddleSwatch" class="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0" style="background:#000000;"></span>
+                            <span class="truncate">2. Middle</span>
+                        </label>
+                        <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:text-indigo-700 transition">
+                            <input type="checkbox" id="visBaseCheck" checked class="w-3.5 h-3.5 rounded text-indigo-600">
+                            <span id="visBaseSwatch" class="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0" style="background:#FFFFFF;"></span>
+                            <span class="truncate">1. Base + Ring</span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Bar Kawalan Kamera Bawah -->
@@ -620,7 +641,7 @@
                         </div>
                     </details>
 
-                    <!-- SEKSYEN 5: KEY RING SETTINGS (5 PARAMETER KAPSUL ^ / v, FINE Y: 0) -->
+                    <!-- SEKSYEN 5: KEY RING SETTINGS (5 PARAMETER KAPSUL ^ / v, OUTER: 8, OFFSET X: 2.5, FINE Y: 0) -->
                     <details open class="gpu-card group rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
                         <summary class="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-amber-50/50 transition">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -929,7 +950,7 @@
             { name: 'Titan One', family: 'FC_TitanOne', urls: [GF_RAW + 'ofl/titanone/TitanOne-Regular.ttf'] }
         ];
 
-        // INTERVENSI 1: Daftar @font-face Secara Lazy-Load (Hanya Fon Aktif Mula Dahulu)
+        // Daftar @font-face Secara Lazy-Load (Hanya Fon Aktif Mula Dahulu)
         const injectedFontFamilies = new Set();
         function ensureFontFaceInjected(item) {
             if (!item || injectedFontFamilies.has(item.family)) return;
@@ -1199,7 +1220,7 @@
         }
 
         // -------------------------------------------------------------------------
-        // INTERVENSI 2: PENJANA GEOMETRI DUAL-RESOLUTION (PREVIEW PANTAS VS EXPORT HD)
+        // PENJANA GEOMETRI DUAL-RESOLUTION (PREVIEW PANTAS VS EXPORT HD)
         // -------------------------------------------------------------------------
         function generateTagLayers2D(font, tag, isExport) {
             const curveSteps = isExport ? 24 : 8;
@@ -1283,11 +1304,10 @@
         }
 
         // -------------------------------------------------------------------------
-        // PENJANA MESH 3D MANIFOLD & WATERTIGHT
+        // PENJANA MESH 3D THREE.SHAPE & EXTRUDEGEOMETRY
         // -------------------------------------------------------------------------
         function cleanPolygonRingMm(poly, epsMm = 0.0025) {
             if (!poly || poly.length < 3) return [];
-            // 1. Tukar ke milimeter tepat (resolusi 0.001 mm) dan buang titik pendua berturutan
             const pts = [];
             for (let i = 0; i < poly.length; i++) {
                 const x = Math.round((poly[i].X / CLIP_SCALE) * 1000) / 1000;
@@ -1306,7 +1326,6 @@
             }
             if (pts.length < 3) return [];
 
-            // 2. Buang bucu segaris (collinear) yang boleh menyebabkan segi tiga sifar-luas
             const filtered = [];
             const n = pts.length;
             for (let i = 0; i < n; i++) {
@@ -1359,15 +1378,12 @@
                 const area = signedAreaMm(ring);
                 if (Math.abs(area) < 1e-5) continue;
                 if (area > 0) {
-                    // Gelung luar mesti lawan jam (CCW)
                     outers.push({ ring, holes: [] });
                 } else {
-                    // Lubang dalam mesti ikut jam (CW)
                     holes.push(ring);
                 }
             }
 
-            // Padankan setiap lubang ke gelung luar terkecil yang mengandungi lubang tersebut
             for (const hole of holes) {
                 let bestOuter = null;
                 let bestArea = Infinity;
@@ -1412,8 +1428,73 @@
         }
 
         // -------------------------------------------------------------------------
-        // PEMBINAAN PENTAS 3D THREE.JS (PLAT 256x256mm)
+        // PEMBINAAN PENTAS 3D THREE.JS (PLAT 256x256mm + CETAKAN BENTARA 3D STUDIO)
         // -------------------------------------------------------------------------
+        function createBuildPlateLabelTexture(isDark) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 1024, 1024);
+
+            const primaryColor = isDark ? 'rgba(226, 232, 240, 0.90)' : 'rgba(30, 41, 59, 0.88)';
+            const accentColor = isDark ? 'rgba(56, 189, 248, 0.94)' : 'rgba(67, 56, 202, 0.90)';
+            const subColor = isDark ? 'rgba(148, 163, 184, 0.78)' : 'rgba(71, 85, 105, 0.78)';
+
+            // Garis Bingkai Dalam Halus
+            ctx.strokeStyle = isDark ? 'rgba(56, 189, 248, 0.38)' : 'rgba(99, 102, 241, 0.35)';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(20, 20, 984, 984);
+
+            // Tanda Pusat (0,0) Halus
+            ctx.strokeStyle = isDark ? 'rgba(56, 189, 248, 0.48)' : 'rgba(99, 102, 241, 0.48)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(492, 512);
+            ctx.lineTo(532, 512);
+            ctx.moveTo(512, 492);
+            ctx.lineTo(512, 532);
+            ctx.stroke();
+
+            // Penjenamaan 'BENTARA 3D STUDIO' di Bahagian Bawah Kiri Plat
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.font = '800 32px Inter, system-ui, sans-serif';
+            ctx.fillStyle = primaryColor;
+            ctx.fillText('BENTARA 3D STUDIO', 44, 976);
+
+            ctx.font = '600 18px "JetBrains Mono", monospace';
+            ctx.fillStyle = subColor;
+            ctx.fillText('PEI TEXTURED BUILD PLATE', 44, 938);
+
+            // Saiz Plat '256 × 256 mm' di Bahagian Bawah Kanan Plat
+            ctx.textAlign = 'right';
+            ctx.font = '800 32px "JetBrains Mono", monospace';
+            ctx.fillStyle = accentColor;
+            ctx.fillText('256 × 256 mm', 980, 976);
+
+            ctx.font = '600 17px "JetBrains Mono", monospace';
+            ctx.fillStyle = subColor;
+            ctx.fillText('SAIZ PLAT CETAKAN (X × Y)', 980, 938);
+
+            // Penanda Dimensi Tepi X & Y
+            ctx.textAlign = 'center';
+            ctx.font = '700 18px "JetBrains Mono", monospace';
+            ctx.fillStyle = subColor;
+            ctx.fillText('◄─── 256 mm ───►', 512, 56);
+
+            ctx.save();
+            ctx.translate(54, 512);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('◄─── 256 mm ───►', 0, 0);
+            ctx.restore();
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 4;
+            tex.needsUpdate = true;
+            return tex;
+        }
+
         function initThreeScene() {
             const container = document.getElementById('canvasContainer');
             scene = new THREE.Scene();
@@ -1473,7 +1554,10 @@
             while (buildPlateGroup.children.length) {
                 const oldObj = buildPlateGroup.children[0];
                 if (oldObj.geometry) oldObj.geometry.dispose();
-                if (oldObj.material) oldObj.material.dispose();
+                if (oldObj.material) {
+                    if (oldObj.material.map) oldObj.material.map.dispose();
+                    oldObj.material.dispose();
+                }
                 buildPlateGroup.remove(oldObj);
             }
             scene.background = new THREE.Color(state.darkPlate ? '#e0f2fe' : '#f8fafc');
@@ -1493,6 +1577,18 @@
             grid.position.z = 0.01;
             buildPlateGroup.add(grid);
 
+            // Cetakan Label 'BENTARA 3D STUDIO' & '256 × 256 mm' Terus di Atas Permukaan Bed 3D
+            const labelTex = createBuildPlateLabelTexture(state.darkPlate);
+            const labelPlaneGeo = new THREE.PlaneGeometry(256, 256);
+            const labelPlaneMat = new THREE.MeshBasicMaterial({
+                map: labelTex,
+                transparent: true,
+                depthWrite: false
+            });
+            const labelPlane = new THREE.Mesh(labelPlaneGeo, labelPlaneMat);
+            labelPlane.position.set(0, 0, 0.02);
+            buildPlateGroup.add(labelPlane);
+
             const borderPts = [
                 new THREE.Vector3(-128, -128, 0.03),
                 new THREE.Vector3(128, -128, 0.03),
@@ -1506,7 +1602,7 @@
         }
 
         // -------------------------------------------------------------------------
-        // INTERVENSI 5: PEMBERSIHAN MEMORI GEOMETRI VRAM (.DISPOSE) + PRATONTON 3D
+        // PEMBERSIHAN MEMORI GEOMETRI VRAM (.DISPOSE) + PRATONTON 3D
         // -------------------------------------------------------------------------
         let sharedMaterials = [];
 
@@ -1602,133 +1698,78 @@
         }
 
         // -------------------------------------------------------------------------
-        // EKSPORT .3MF BERWARNA TULEN (BAMBU STUDIO / ORCASLICER MANIFOLD READY)
+        // EKSPORT .3MF BERWARNA TULEN & WATERTIGHT (0 OPEN EDGES • BAMBU STUDIO)
         // -------------------------------------------------------------------------
-        function buildWatertightManifold3mfXml(paths, zBottom, zTop, offsetX, offsetY, matSlotIndex) {
-            const contours = buildCleanedContours(paths);
-            if (!contours.length) return { vertices: [], triangles: [], openEdges: 0 };
+        function generateRfc4122Uuid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = (Math.random() * 16) | 0;
+                const v = c === 'x' ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+            });
+        }
 
-            const z0 = Math.round(zBottom * 1000) / 1000;
-            const z1 = Math.round(Math.max(zBottom + 0.05, zTop) * 1000) / 1000;
-            const ox = Math.round(offsetX * 1000) / 1000;
-            const oy = Math.round(offsetY * 1000) / 1000;
+        function buildWatertightMeshXmlFromExtrude(paths, zBottom, zTop, offsetX, offsetY) {
+            const shapes = clipperToThreeShapes(paths);
+            if (!shapes.length) return { vertices: [], triangles: [] };
+
+            const depth = Math.max(0.05, zTop - zBottom);
+            const geo = new THREE.ExtrudeGeometry(shapes, {
+                depth: depth,
+                bevelEnabled: false,
+                curveSegments: 1
+            });
+            geo.translate(offsetX, offsetY, zBottom);
+
+            const posAttr = geo.getAttribute('position');
+            if (!posAttr) {
+                geo.dispose();
+                return { vertices: [], triangles: [] };
+            }
 
             const vertMap = new Map();
             const vertCoords = [];
             const vertices = [];
             const triangles = [];
-            const directedEdges = new Set();
 
-            // 1. Kimpal bucu (Vertex Welding) pada kejituan 0.001 mm
+            // Kimpal semua bucu berkongsi koordinat tepat (0.0001 mm) supaya 0 open edges
             const getWeldedVertex = (x, y, z) => {
-                const kx = Math.round(x * 1000);
-                const ky = Math.round(y * 1000);
-                const kz = Math.round(z * 1000);
+                const kx = Math.round(x * 10000);
+                const ky = Math.round(y * 10000);
+                const kz = Math.round(z * 10000);
                 const key = `${kx}_${ky}_${kz}`;
                 if (vertMap.has(key)) return vertMap.get(key);
                 const idx = vertices.length;
                 vertMap.set(key, idx);
-                const vx = kx / 1000;
-                const vy = ky / 1000;
-                const vz = kz / 1000;
+                const vx = kx / 10000;
+                const vy = ky / 10000;
+                const vz = kz / 10000;
                 vertCoords.push({ x: vx, y: vy, z: vz });
-                vertices.push(`<vertex x="${vx.toFixed(3)}" y="${vy.toFixed(3)}" z="${vz.toFixed(3)}" />`);
+                vertices.push(`<vertex x="${vx.toFixed(4)}" y="${vy.toFixed(4)}" z="${vz.toFixed(4)}" />`);
                 return idx;
             };
 
-            const addManifoldTriangle = (i0, i1, i2, expectedNormal) => {
-                if (i0 === i1 || i1 === i2 || i0 === i2) return;
-                const a = vertCoords[i0], b = vertCoords[i1], c = vertCoords[i2];
+            const triCount = Math.floor(posAttr.count / 3);
+            for (let t = 0; t < triCount; t++) {
+                const i0 = t * 3;
+                const v1 = getWeldedVertex(posAttr.getX(i0), posAttr.getY(i0), posAttr.getZ(i0));
+                const v2 = getWeldedVertex(posAttr.getX(i0 + 1), posAttr.getY(i0 + 1), posAttr.getZ(i0 + 1));
+                const v3 = getWeldedVertex(posAttr.getX(i0 + 2), posAttr.getY(i0 + 2), posAttr.getZ(i0 + 2));
+
+                if (v1 === v2 || v2 === v3 || v1 === v3) continue;
+
+                const a = vertCoords[v1], b = vertCoords[v2], c = vertCoords[v3];
                 const ux = b.x - a.x, uy = b.y - a.y, uz = b.z - a.z;
                 const vx = c.x - a.x, vy = c.y - a.y, vz = c.z - a.z;
                 const nx = uy * vz - uz * vy;
                 const ny = uz * vx - ux * vz;
                 const nz = ux * vy - uy * vx;
-                const areaSq = nx * nx + ny * ny + nz * nz;
-                if (areaSq < 1e-10) return;
+                if ((nx * nx + ny * ny + nz * nz) < 1e-12) continue;
 
-                let v1 = i0, v2 = i1, v3 = i2;
-                if (expectedNormal) {
-                    const dot = nx * expectedNormal.x + ny * expectedNormal.y + nz * expectedNormal.z;
-                    if (dot < 0) {
-                        v2 = i2;
-                        v3 = i1;
-                    }
-                }
-                triangles.push(`<triangle v1="${v1}" v2="${v2}" v3="${v3}" pid="1" p1="${matSlotIndex}" />`);
-                directedEdges.add(`${v1}_${v2}`);
-                directedEdges.add(`${v2}_${v3}`);
-                directedEdges.add(`${v3}_${v1}`);
-            };
-
-            for (const contour of contours) {
-                const outerVecs = contour.ring.map(p => new THREE.Vector2(p.x + ox, p.y + oy));
-                const holeVecsList = contour.holes.map(h => h.map(p => new THREE.Vector2(p.x + ox, p.y + oy)));
-
-                // Semua titik kontur (luar + lubang) dikimpal dahulu untuk berkongsi bucu tepat antara penutup & dinding
-                const allRings = [outerVecs, ...holeVecsList];
-                const flatVerts = [];
-                const ringTopIndices = [];
-                const ringBotIndices = [];
-
-                for (const r of allRings) {
-                    const topIdxRing = [];
-                    const botIdxRing = [];
-                    for (const pt of r) {
-                        flatVerts.push(pt);
-                        topIdxRing.push(getWeldedVertex(pt.x, pt.y, z1));
-                        botIdxRing.push(getWeldedVertex(pt.x, pt.y, z0));
-                    }
-                    ringTopIndices.push(topIdxRing);
-                    ringBotIndices.push(botIdxRing);
-                }
-
-                // 2. Penutup Atas (+Z CCW) dan Penutup Bawah (-Z CCW) menggunakan Earcut yang sama
-                const faces = THREE.ShapeUtils.triangulateShape(outerVecs, holeVecsList);
-                const flatTopIdx = ringTopIndices.flat();
-                const flatBotIdx = ringBotIndices.flat();
-
-                for (const face of faces) {
-                    const [a, b, c] = face;
-                    // Penutup Atas: arah normal +Z
-                    addManifoldTriangle(flatTopIdx[a], flatTopIdx[b], flatTopIdx[c], { x: 0, y: 0, z: 1 });
-                    // Penutup Bawah: arah normal -Z (susunan songsang)
-                    addManifoldTriangle(flatBotIdx[a], flatBotIdx[c], flatBotIdx[b], { x: 0, y: 0, z: -1 });
-                }
-
-                // 3. Dinding Sisi (Side Walls) berkongsi bucu tepat dengan penutup atas & bawah
-                for (let rIdx = 0; rIdx < allRings.length; rIdx++) {
-                    const rPts = allRings[rIdx];
-                    const tIdx = ringTopIndices[rIdx];
-                    const bIdx = ringBotIndices[rIdx];
-                    const len = rPts.length;
-
-                    for (let i = 0; i < len; i++) {
-                        const next = (i + 1) % len;
-                        const p0 = rPts[i];
-                        const p1 = rPts[next];
-                        // Normal keluar 2D bagi gelung luar (CCW) dan lubang dalam (CW) ialah (dy, -dx)
-                        const outNormal = { x: p1.y - p0.y, y: -(p1.x - p0.x), z: 0 };
-
-                        const b0 = bIdx[i], b1 = bIdx[next];
-                        const t1 = tIdx[next], t0 = tIdx[i];
-
-                        addManifoldTriangle(b0, b1, t1, outNormal);
-                        addManifoldTriangle(b0, t1, t0, outNormal);
-                    }
-                }
+                triangles.push(`<triangle v1="${v1}" v2="${v2}" v3="${v3}" />`);
             }
 
-            // 4. Pengesahan Manifold: setiap sisi berarah (a, b) mesti mempunyai kembar (b, a)
-            let openEdges = 0;
-            for (const edgeKey of directedEdges) {
-                const [u, v] = edgeKey.split('_');
-                if (!directedEdges.has(`${v}_${u}`)) {
-                    openEdges++;
-                }
-            }
-
-            return { vertices, triangles, openEdges };
+            geo.dispose();
+            return { vertices, triangles };
         }
 
         async function exportColored3MF() {
@@ -1741,26 +1782,52 @@
                 const font = await loadSelectedFont();
                 if (!font) throw new Error('Fon belum sedia');
 
+                const normalizeHex = (hex, fallback) => {
+                    const clean = (hex || fallback).trim().toUpperCase();
+                    return /^#[0-9A-F]{6}$/.test(clean) ? clean : fallback;
+                };
+
+                const baseHex = normalizeHex(state.baseColor, '#FFFFFF');
+                const midHex = normalizeHex(state.middleColor, '#000000');
+                const txtHex = normalizeHex(state.textColor, '#38BDF8');
+
+                const orderedLayerHexes = state.layerMode === 3
+                    ? [baseHex, midHex, txtHex]
+                    : [baseHex, txtHex];
+
+                const filamentColours = [];
+                const hexToExtruderSlot = new Map();
+                for (const hex of orderedLayerHexes) {
+                    if (!hexToExtruderSlot.has(hex)) {
+                        filamentColours.push(hex);
+                        hexToExtruderSlot.set(hex, filamentColours.length);
+                    }
+                }
+
+                const baseExtruder = hexToExtruderSlot.get(baseHex);
+                const midExtruder = hexToExtruderSlot.get(midHex);
+                const txtExtruder = hexToExtruderSlot.get(txtHex);
+
                 const zBaseTop = state.baseThick;
                 const zMidTop = state.layerMode === 3 ? (zBaseTop + state.middleThick) : zBaseTop;
                 const zTxtTop = zMidTop + state.textThick;
 
                 const objectsXml = [];
                 const buildItemsXml = [];
-                let nextObjId = 2;
+                const modelSettingsObjectsXml = [];
+                let nextObjId = 1;
                 let activeCount = 0;
-                let totalOpenEdges = 0;
 
-                const createPartObjectXml = (paths, zBottom, zTop, posX, posY, matSlotIndex, partName) => {
+                const createPartObjectXml = (paths, zBottom, zTop, posX, posY, partName, extruderSlot) => {
                     if (!paths || !paths.length) return null;
-                    const { vertices, triangles, openEdges } = buildWatertightManifold3mfXml(
-                        paths, zBottom, zTop, posX, posY, matSlotIndex
+                    const { vertices, triangles } = buildWatertightMeshXmlFromExtrude(
+                        paths, zBottom, zTop, posX, posY
                     );
-                    totalOpenEdges += openEdges;
                     if (!triangles.length) return null;
 
                     const objId = nextObjId++;
-                    objectsXml.push(`    <object id="${objId}" name="${partName}" type="model" pid="1" pindex="${matSlotIndex}">
+                    const partUuid = generateRfc4122Uuid();
+                    objectsXml.push(`    <object id="${objId}" p:UUID="${partUuid}" name="${partName}" type="model">
       <mesh>
         <vertices>
           ${vertices.join('\n          ')}
@@ -1770,7 +1837,7 @@
         </triangles>
       </mesh>
     </object>`);
-                    return objId;
+                    return { id: objId, name: partName, extruder: extruderSlot };
                 };
 
                 for (let i = 0; i < state.tags.length; i++) {
@@ -1790,48 +1857,67 @@
                         .replace(/[<>&"']/g, '')
                         .replace(/\s+/g, '_');
 
-                    const componentIds = [];
-                    const baseObjId = createPartObjectXml(
+                    const partsList = [];
+                    const basePart = createPartObjectXml(
                         layers.basePolys, 0, zBaseTop, posX, posY,
-                        0,
-                        `${tagCleanName}_1_Base_Ring`
+                        `${tagCleanName}_1_Base_Ring`,
+                        baseExtruder
                     );
-                    if (baseObjId) componentIds.push(baseObjId);
+                    if (basePart) partsList.push(basePart);
 
                     if (state.layerMode === 3) {
-                        const midObjId = createPartObjectXml(
+                        const midPart = createPartObjectXml(
                             layers.middlePolys, zBaseTop, zMidTop, posX, posY,
-                            1,
-                            `${tagCleanName}_2_Middle`
+                            `${tagCleanName}_2_Middle`,
+                            midExtruder
                         );
-                        if (midObjId) componentIds.push(midObjId);
+                        if (midPart) partsList.push(midPart);
 
-                        const txtObjId = createPartObjectXml(
+                        const txtPart = createPartObjectXml(
                             layers.textPolys, zMidTop, zTxtTop, posX, posY,
-                            2,
-                            `${tagCleanName}_3_Text`
+                            `${tagCleanName}_3_Text`,
+                            txtExtruder
                         );
-                        if (txtObjId) componentIds.push(txtObjId);
+                        if (txtPart) partsList.push(txtPart);
                     } else {
-                        const txtObjId = createPartObjectXml(
+                        const txtPart = createPartObjectXml(
                             layers.textPolys, zBaseTop, zTxtTop, posX, posY,
-                            1,
-                            `${tagCleanName}_2_Text`
+                            `${tagCleanName}_2_Text`,
+                            txtExtruder
                         );
-                        if (txtObjId) componentIds.push(txtObjId);
+                        if (txtPart) partsList.push(txtPart);
                     }
 
-                    if (componentIds.length > 0) {
+                    if (partsList.length > 0) {
                         const assemblyId = nextObjId++;
-                        const compsXml = componentIds
-                            .map(cid => `        <component objectid="${cid}" />`)
+                        const assemblyUuid = generateRfc4122Uuid();
+                        const assemblyName = `Keychain_${activeCount}_${tagCleanName}`;
+
+                        const compsXml = partsList
+                            .map(part => `        <component objectid="${part.id}" p:UUID="${generateRfc4122Uuid()}" transform="1 0 0 0 1 0 0 0 1 0 0 0" />`)
                             .join('\n');
-                        objectsXml.push(`    <object id="${assemblyId}" name="Keychain_${activeCount}_${tagCleanName}" type="model">
+
+                        objectsXml.push(`    <object id="${assemblyId}" p:UUID="${assemblyUuid}" name="${assemblyName}" type="model">
       <components>
 ${compsXml}
       </components>
     </object>`);
-                        buildItemsXml.push(`    <item objectid="${assemblyId}" transform="1 0 0 0 1 0 0 0 1 128 128 0" />`);
+
+                        const itemUuid = generateRfc4122Uuid();
+                        buildItemsXml.push(`    <item objectid="${assemblyId}" p:UUID="${itemUuid}" transform="1 0 0 0 1 0 0 0 1 128 128 0" printable="1" />`);
+
+                        const partsSettingsXml = partsList
+                            .map(part => `    <part id="${part.id}" subtype="normal_part">
+      <metadata key="name" value="${part.name}"/>
+      <metadata key="extruder" value="${part.extruder}"/>
+    </part>`)
+                            .join('\n');
+
+                        modelSettingsObjectsXml.push(`  <object id="${assemblyId}">
+    <metadata key="name" value="${assemblyName}"/>
+    <metadata key="extruder" value="1"/>
+${partsSettingsXml}
+  </object>`);
                     }
                 }
 
@@ -1840,53 +1926,52 @@ ${compsXml}
                     return;
                 }
 
-                const normalizeHex = (hex, fallback) => {
-                    const clean = (hex || fallback).trim().toUpperCase();
-                    return /^#[0-9A-F]{6}$/.test(clean) ? clean : fallback;
-                };
-
-                const baseHex = normalizeHex(state.baseColor, '#FFFFFF');
-                const midHex = normalizeHex(state.middleColor, '#000000');
-                const txtHex = normalizeHex(state.textColor, '#38BDF8');
-
-                const baseMatsXml = state.layerMode === 3
-                    ? `    <basematerials id="1">
-      <base name="1_Base_Ring" displaycolor="${baseHex}" />
-      <base name="2_Middle" displaycolor="${midHex}" />
-      <base name="3_Text" displaycolor="${txtHex}" />
-    </basematerials>`
-                    : `    <basematerials id="1">
-      <base name="1_Base_Ring" displaycolor="${baseHex}" />
-      <base name="2_Text" displaycolor="${txtHex}" />
-    </basematerials>`;
-
+                const buildUuid = generateRfc4122Uuid();
                 const modelXml = `<?xml version="1.0" encoding="UTF-8"?>
-<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:m="http://schemas.microsoft.com/3dmanufacturing/material/2015/02">
-  <metadata name="Application">Keychain 3D Studio - Bentara Setia</metadata>
+<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:BambuStudio="http://schemas.bambulab.com/package/2021" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06" requiredextensions="p">
+  <metadata name="Application">BambuStudio-01.09.07.52</metadata>
+  <metadata name="BambuStudio:3mfVersion">1</metadata>
+  <metadata name="Title">Keychain 3D Studio - Bentara Setia</metadata>
   <resources>
-${baseMatsXml}
 ${objectsXml.join('\n')}
   </resources>
-  <build>
+  <build p:UUID="${buildUuid}">
 ${buildItemsXml.join('\n')}
   </build>
 </model>`;
+
+                const modelSettingsXml = `<?xml version="1.0" encoding="UTF-8"?>
+<config>
+${modelSettingsObjectsXml.join('\n')}
+</config>`;
+
+                const projectSettingsJson = JSON.stringify({
+                    filament_colour: filamentColours,
+                    filament_type: filamentColours.map(() => 'PLA'),
+                    filament_vendor: filamentColours.map(() => 'Generic'),
+                    curr_bed_type: 'Textured PEI Plate'
+                }, null, 2);
 
                 const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
   <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" />
+  <Default Extension="config" ContentType="text/xml" />
 </Types>`;
 
                 const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+  <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
+  <Relationship Target="/Metadata/model_settings.config" Id="rel-2" Type="http://schemas.bambulab.com/package/2021/model-settings" />
 </Relationships>`;
 
                 const zip = new JSZip();
                 zip.file('[Content_Types].xml', contentTypesXml);
                 zip.folder('_rels').file('.rels', relsXml);
                 zip.folder('3D').file('3dmodel.model', modelXml);
+                const metaFolder = zip.folder('Metadata');
+                metaFolder.file('model_settings.config', modelSettingsXml);
+                metaFolder.file('project_settings.config', projectSettingsJson);
 
                 const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
                 const firstClean = (state.tags.find(t => t.line1.trim())?.line1 || 'Keychain').replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -1900,7 +1985,7 @@ ${buildItemsXml.join('\n')}
                 document.body.removeChild(link);
                 setTimeout(() => URL.revokeObjectURL(link.href), 5000);
 
-                window.showToast(`Fail ${fileName} dijana (0 Open Edges • Watertight)!`);
+                window.showToast(`Fail ${fileName} dijana (Bambu Studio Multi-Color • 0 Open Edges)!`);
             } catch (err) {
                 console.error(err);
                 window.showToast('Ralat menjana .3MF: ' + err.message);
@@ -2083,6 +2168,33 @@ ${buildItemsXml.join('\n')}
             });
         }
 
+        function updateLayerHudSummary() {
+            const is3 = state.layerMode === 3;
+            const total = is3 ? 3 : 2;
+            const visibleCount = (state.visBase ? 1 : 0) + (is3 && state.visMiddle ? 1 : 0) + (state.visText ? 1 : 0);
+            const countLabel = document.getElementById('layerHudCountLabel');
+            if (countLabel) {
+                countLabel.textContent = `Lapisan (${visibleCount}/${total})`;
+            }
+        }
+
+        function toggleLayerHudDropdown(forceState) {
+            const dropdown = document.getElementById('layerHudDropdown');
+            const toggleBtn = document.getElementById('layerHudToggleBtn');
+            const chevron = document.getElementById('layerHudChevron');
+            if (!dropdown || !toggleBtn) return;
+
+            const shouldOpen = typeof forceState === 'boolean'
+                ? forceState
+                : dropdown.classList.contains('hidden');
+
+            dropdown.classList.toggle('hidden', !shouldOpen);
+            toggleBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+            if (chevron) {
+                chevron.style.transform = shouldOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+            }
+        }
+
         function syncLayerModeUI() {
             const is3 = state.layerMode === 3;
             document.getElementById('customizerModeBadge').textContent = is3 ? '3-LAYER' : '2-LAYER';
@@ -2093,6 +2205,10 @@ ${buildItemsXml.join('\n')}
             document.getElementById('middleThickWrap').classList.toggle('hidden', !is3);
             document.getElementById('middleColorRow').classList.toggle('hidden', !is3);
             document.getElementById('visMiddleRow').classList.toggle('hidden', !is3);
+
+            const hudDotMid = document.getElementById('hudDotMiddle');
+            if (hudDotMid) hudDotMid.classList.toggle('hidden', !is3);
+            updateLayerHudSummary();
 
             const m2 = document.getElementById('mode2LayerBtn');
             const m3 = document.getElementById('mode3LayerBtn');
@@ -2125,6 +2241,7 @@ ${buildItemsXml.join('\n')}
 
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
+                toggleLayerHudDropdown(false);
                 if (menu.style.display === 'none' || !menu.style.display) {
                     openFloatingFontMenu();
                 } else {
@@ -2141,11 +2258,43 @@ ${buildItemsXml.join('\n')}
 
             searchInp.addEventListener('input', () => renderFontPickerList(searchInp.value));
             menu.addEventListener('click', (e) => e.stopPropagation());
-            document.addEventListener('click', closeFloatingFontMenu);
+
+            document.addEventListener('click', () => {
+                closeFloatingFontMenu();
+                toggleLayerHudDropdown(false);
+            });
+
             if (scrollArea) {
                 scrollArea.addEventListener('scroll', closeFloatingFontMenu, { passive: true });
             }
             window.addEventListener('resize', closeFloatingFontMenu);
+
+            // Butang Dropdown Keterlihatan Lapisan (#layer-hud)
+            const layerHudEl = document.getElementById('layer-hud');
+            const layerHudToggleBtn = document.getElementById('layerHudToggleBtn');
+            const showAllLayersBtn = document.getElementById('showAllLayersBtn');
+            if (layerHudEl) {
+                layerHudEl.addEventListener('click', (e) => e.stopPropagation());
+            }
+            if (layerHudToggleBtn) {
+                layerHudToggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeFloatingFontMenu();
+                    toggleLayerHudDropdown();
+                });
+            }
+            if (showAllLayersBtn) {
+                showAllLayersBtn.addEventListener('click', () => {
+                    state.visText = true;
+                    state.visMiddle = true;
+                    state.visBase = true;
+                    document.getElementById('visTextCheck').checked = true;
+                    document.getElementById('visMiddleCheck').checked = true;
+                    document.getElementById('visBaseCheck').checked = true;
+                    updateLayerHudSummary();
+                    requestRender();
+                });
+            }
 
             // Muat naik fon tempatan .TTF / .OTF
             document.getElementById('customFontUpload').addEventListener('change', async (e) => {
@@ -2237,34 +2386,54 @@ ${buildItemsXml.join('\n')}
             });
 
             // Warna Filamen
-            const bindColor = (pickerId, presetId, swatchId, key) => {
+            const bindColor = (pickerId, presetId, swatchId, dotId, key) => {
                 const picker = document.getElementById(pickerId);
                 const preset = document.getElementById(presetId);
                 const swatch = document.getElementById(swatchId);
+                const dot = document.getElementById(dotId);
                 picker.addEventListener('input', () => {
                     state[key] = picker.value.toUpperCase();
                     if (swatch) swatch.style.background = state[key];
+                    if (dot) dot.style.background = state[key];
                     requestRender();
                 });
                 preset.addEventListener('change', () => {
                     state[key] = preset.value.toUpperCase();
                     picker.value = preset.value;
                     if (swatch) swatch.style.background = state[key];
+                    if (dot) dot.style.background = state[key];
                     requestRender();
                 });
             };
 
-            bindColor('textColorPicker', 'textColorPreset', 'visTextSwatch', 'textColor');
-            bindColor('middleColorPicker', 'middleColorPreset', 'visMiddleSwatch', 'middleColor');
-            bindColor('baseColorPicker', 'baseColorPreset', 'visBaseSwatch', 'baseColor');
+            bindColor('textColorPicker', 'textColorPreset', 'visTextSwatch', 'hudDotText', 'textColor');
+            bindColor('middleColorPicker', 'middleColorPreset', 'visMiddleSwatch', 'hudDotMiddle', 'middleColor');
+            bindColor('baseColorPicker', 'baseColorPreset', 'visBaseSwatch', 'hudDotBase', 'baseColor');
 
             // Keterlihatan Lapisan
-            document.getElementById('visTextCheck').addEventListener('change', (e) => { state.visText = e.target.checked; requestRender(); });
-            document.getElementById('visMiddleCheck').addEventListener('change', (e) => { state.visMiddle = e.target.checked; requestRender(); });
-            document.getElementById('visBaseCheck').addEventListener('change', (e) => { state.visBase = e.target.checked; requestRender(); });
+            document.getElementById('visTextCheck').addEventListener('change', (e) => {
+                state.visText = e.target.checked;
+                updateLayerHudSummary();
+                requestRender();
+            });
+            document.getElementById('visMiddleCheck').addEventListener('change', (e) => {
+                state.visMiddle = e.target.checked;
+                updateLayerHudSummary();
+                requestRender();
+            });
+            document.getElementById('visBaseCheck').addEventListener('change', (e) => {
+                state.visBase = e.target.checked;
+                updateLayerHudSummary();
+                requestRender();
+            });
 
             // Mod 2 Layer / 3 Layer
-            const setMode = (m) => { state.layerMode = m; syncLayerModeUI(); requestRender(); };
+            const setMode = (m) => {
+                state.layerMode = m;
+                toggleLayerHudDropdown(false);
+                syncLayerModeUI();
+                requestRender();
+            };
             document.getElementById('mode2LayerBtn').addEventListener('click', () => setMode(2));
             document.getElementById('mode3LayerBtn').addEventListener('click', () => setMode(3));
             document.getElementById('mobMode2Btn').addEventListener('click', () => setMode(2));
@@ -2289,8 +2458,8 @@ ${buildItemsXml.join('\n')}
                 controls.update();
             });
             document.getElementById('camSideBtn').addEventListener('click', () => {
-                controls.target.set(-55, -75, 2);
-                camera.position.set(-55, -165, 8);
+                controls.target.set(0, 0, 0);
+                camera.position.set(0, -255, 225);
                 controls.update();
             });
 
@@ -2347,14 +2516,21 @@ ${buildItemsXml.join('\n')}
                 document.getElementById('textColorPicker').value = state.textColor;
                 document.getElementById('textColorPreset').value = state.textColor;
                 document.getElementById('visTextSwatch').style.background = state.textColor;
+                document.getElementById('hudDotText').style.background = state.textColor;
 
                 document.getElementById('middleColorPicker').value = state.middleColor;
                 document.getElementById('middleColorPreset').value = state.middleColor;
                 document.getElementById('visMiddleSwatch').style.background = state.middleColor;
+                document.getElementById('hudDotMiddle').style.background = state.middleColor;
 
                 document.getElementById('baseColorPicker').value = state.baseColor;
                 document.getElementById('baseColorPreset').value = state.baseColor;
                 document.getElementById('visBaseSwatch').style.background = state.baseColor;
+                document.getElementById('hudDotBase').style.background = state.baseColor;
+
+                document.getElementById('visTextCheck').checked = true;
+                document.getElementById('visMiddleCheck').checked = true;
+                document.getElementById('visBaseCheck').checked = true;
 
                 document.getElementById('bedStartXInput').value = state.bedStartX;
                 document.getElementById('bedStartYInput').value = state.bedStartY;
